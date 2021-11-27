@@ -1,0 +1,9 @@
+﻿@model ChatViewModel;
+
+<h1>@Model.Message</h1>
+
+@using(Html.BeginForm("Chat", "Home", FormMethod.Post))
+{
+    @Html.TextBoxFor(model=>model.UserName, new {placeholder="Ваш никнейм"});
+    <input type="submit" value = "Войти в чат">
+}
