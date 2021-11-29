@@ -19,9 +19,9 @@
         let input = document.getElementById("msg");
         let msg = input.value;
         input.value = "";
-        connection.invoke("NewMessageRequest", msg, "@Model.Username");
-
+        connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.Username)");
     });
+
     connection.on("NewMessage", (time, sender, message)=>{
         let elem = document.createElement("p");
         elem.innerText = `${time} ${sender}: ${message}`;
@@ -44,7 +44,8 @@
         let firstElem = document.getElementById("messages").firstChild;
         document.getElementById("messages").insertBefore(elem, firstElem);
     });
+
     window.addEventListener("unload", e=>{
-        connection.invoke("MemberLeft", "@Model.Username");
+        connection.invoke("MemberLeft", "@Html.Raw(Model.Username)");
     });
 </script>
