@@ -59,11 +59,22 @@ else{
         let firstElem = document.getElementById("messages").firstChild;
         document.getElementById("messages").insertBefore(elem, firstElem);
     });
-
-    window.addEventListener("unload", e=>{
+    document.addEventListener("keypress", e=>{
+        if(e.key=="Enter"){
+            var input = document.getElementById("msg");
+            var value = document.getElementById("msg").value.trim();
+            if(value!="" && value!=null && value!= " "){
+                connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.UserName)");
+            }
+        } 
+    });
+    window.addEventListener("unload", leave);
+    window.addEventListener("beforeunload", leave);
+    window.addEventListener("close", leave);
+    function leave(e){ 
         connection.invoke("MemberLeft", "@Html.Raw(Model.UserName)");
         return null;
-    });
+    }
     }
 </script>
 }
