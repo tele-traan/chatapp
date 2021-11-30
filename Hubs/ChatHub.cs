@@ -9,7 +9,7 @@ namespace ChatApp.Hubs
     public class ChatHub : Hub
     {
         public async Task NewMessageRequest(string message, string sender)
-        { 
+        {
             var time = System.DateTime.Now.ToString();
             await Clients.All.SendAsync("NewMessage", time, sender, message);
         }
@@ -17,10 +17,11 @@ namespace ChatApp.Hubs
         public async Task MemberLeft(string whoLeft)
         {
             var dbContent
-                = GetHttpContextExtensions.GetHttpContext(Context).RequestServices.GetService<DBContent>();
-            await Clients.All.SendAsync("MemberLeft", whoLeft);
+                = GetHttpContextExtensions.GetHttpContext(Context).RequestServices.GetRequiredService<DBContent>();
+            var v = dbContent.Users.FirstOrDefault(u => u.Username == whoLeft);
             dbContent.Users.Remove(dbContent.Users.FirstOrDefault(u => u.Username == whoLeft));
             dbContent.SaveChanges();
+            await Clients.All.SendAsync("MemberLeft", whoLeft);
         }
     }
 }

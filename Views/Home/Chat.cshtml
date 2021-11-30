@@ -1,4 +1,12 @@
-﻿@model ChatViewModel
+﻿@model BaseViewModel
+@if(Model.UserName==null||Model.UserName==""||Model.UserName==" ")
+{
+    Layout = null;
+    <h1 style="font-size:100%; margin:auto;">403</h1>
+    <h3>Вы уверены, что перешли сюда с <a asp-controller="Home" 
+        asp-action="Index" asp-route-message="Попробуйте снова">этой страницы</a>?</h3>
+}
+else{
 <style>
     #messages{
         border: 1px solid black;
@@ -6,11 +14,12 @@
     }
 </style>
 <input id="msg" type="text" placeholder="Сообщение" />
-<button id="btn">Отправить</button>
+<button class="btn btn-outline-success"id="btn">Отправить</button>
 <div id="messages"></div>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
 <script>
+    if(true){
     var connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
     connection.start();
     
@@ -18,8 +27,14 @@
         e.preventDefault();
         let input = document.getElementById("msg");
         let msg = input.value;
+        if(msg=="" || msg==" "||msg==null){
+            document.getElementById("msg").style.borderColor = "red";
+            alert("Сообщение не может быть пустым");
+            return;
+        }
+        document.getElementById("msg").style.borderColor = "gray";
         input.value = "";
-        connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.Username)");
+        connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.UserName)");
     });
 
     connection.on("NewMessage", (time, sender, message)=>{
@@ -46,6 +61,9 @@
     });
 
     window.addEventListener("unload", e=>{
-        connection.invoke("MemberLeft", "@Html.Raw(Model.Username)");
+        connection.invoke("MemberLeft", "@Html.Raw(Model.UserName)");
+        return null;
     });
+    }
 </script>
+}
