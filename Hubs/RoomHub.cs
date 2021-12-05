@@ -1,5 +1,5 @@
-﻿using ChatApp.Models;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
+using ChatApp.Models;
 using ChatApp.Util;
 using System;
 using System.Linq;
@@ -9,20 +9,15 @@ namespace ChatApp.Hubs
 {
     public class RoomHub : Hub
     {
-        public async Task MemberJoined(string roomName, string memberName)
-        {
-            List<string> excluded = this.GetExcluded(roomName);
-            
+        public void MemberJoined(string roomName, string memberName)
+        {     
             var httpContext = Context.GetHttpContext();
             var dbContent = httpContext.GetDbContent();
+
             var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
 
             room.Users?.Add(new User { Username = memberName, UserConnectionId = Context.ConnectionId });
             dbContent.SaveChanges();
-
-            string msg = $"Пользователь {memberName} подключился";
-            await Clients.AllExcept(excluded).SendAsync("MemberJoined", msg);
-            await Clients.All.SendAsync("MemberJoined", "KEKW");
         }
         public async Task MemberLeft(string roomName, string memberName)
         {
@@ -39,7 +34,7 @@ namespace ChatApp.Hubs
 
         public async Task NewMessage(string roomName, string memberName, string message)
         {
-            var time = DateTime.Now.ToShortTimeString()+ $" ConnectionId = {Context.ConnectionId}";
+            var time = DateTime.Now.ToShortTimeString();
             List<string> excluded = this.GetExcluded(roomName);
             await Clients.AllExcept(excluded).SendAsync("NewMessage", time, memberName, message);
         }

@@ -42,8 +42,8 @@ namespace ChatApp.Controllers
             var room = _dbContent.Rooms.FirstOrDefault(r => r.Name == model.RoomName);
             if (room != null)
             {
-                _roomHub.Clients.AllExcept(this.GetExcluded(model.RoomName))
-                    .SendAsync("MemberJoined", model.RoomName, model.UserName);
+                _roomHub.Clients.All//Except(this.GetExcluded(model.RoomName))
+                    .SendAsync("MemberJoined", model.UserName);
                 room.Users.Add(new User { Username = model.UserName});
                 _dbContent.SaveChanges();
                 var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, IsAdmin = false };
