@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ChatApp.Hubs;
-using ChatApp.Interfaces;
 using ChatApp.DB;
 using Microsoft.EntityFrameworkCore;
 namespace ChatApp
@@ -22,7 +21,6 @@ namespace ChatApp
             services.AddMvc();
             services.AddSignalR();
             services.AddTransient<ChatHub>();
-            services.AddTransient<ITimeDependency, Time>();
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DBContent>(options => options.UseSqlServer(connection));
         }
@@ -36,6 +34,7 @@ namespace ChatApp
             {
                 endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapHub<ChatHub>("/chathub");
+                endpoints.MapHub<RoomHub>("/roomhub");
             });
         }
     }

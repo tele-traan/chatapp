@@ -1,0 +1,21 @@
+﻿@model RoomViewModel
+@if(Model.Message=="create"){
+@using(Html.BeginForm("Create", "Room", FormMethod.Post)){
+    @Html.LabelFor(m=>m.UserName, "Ваш ник:")
+    @Html.TextBoxFor(m=>m.UserName)<br />
+    @Html.LabelFor(m=>m.RoomName, "Название комнаты:")
+    @Html.TextBoxFor(m=>m.RoomName)<br />
+    <input class="btn btn-outline-success" type="submit" value="Создать комнату" />
+    }
+}
+else
+{
+    @using (Html.BeginForm("Connect", "Room", FormMethod.Post))
+    {
+     @Html.LabelFor(m=>m.UserName, "Ваш ник:")
+     @Html.TextBoxFor(m=>m.UserName)<br />
+          @Html.LabelFor(m=>m.RoomName, "Название комнаты:")
+     @Html.TextBoxFor(m=>m.RoomName)<br />
+     <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
+    }
+}

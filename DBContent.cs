@@ -9,6 +9,6 @@ namespace ChatApp.DB
             Database.EnsureCreated();
         }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Room> Rooms { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace ChatApp
             using (var scope = host.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<DBContent>();
-                Sample.Initialise(context);
+                //Sample.Initialise(context);
             }
             host.Run();
         }

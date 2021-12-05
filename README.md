@@ -5,3 +5,4 @@ Nothing actually to be written here - I will update this as the project gets mor
 Todo: 
   - authorization and authentification
   - design improvements (import bootstrap)
+  - Private chat rooms

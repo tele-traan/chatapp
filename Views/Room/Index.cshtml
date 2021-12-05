@@ -1,0 +1,63 @@
+﻿@model RoomViewModel
+
+@(Model.Message=="" ? $"Комната \"{Model.RoomName}\"" : Model.Message)
+
+
+<input type="text" id="msg" />
+<button id="btnsendmsg">Отправить</button>
+<div id="messages"></div>
+
+
+
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/roomhub").build();
+    document.addEventListener("load", ()=>{
+        connection.invoke("MemberJoined", "@Html.Raw(Model.RoomName)", "@Html.Raw(Model.UserName)");
+    });
+    connection.start();
+
+    connection.on("NewMessage", (time, sender, msg)=>{
+
+        let p = document.createElement("p");
+        p.innerText = `${time} ${sender}: ${msg}`;
+        let firstElem = document.getElementById("messages").firstChild;
+        document.getElementById("messages").insertBefore(p, firstElem);
+
+    });
+
+    connection.on("MemberJoined", memberName=>{
+        let p = document.createElement("p");
+        p.style.backgroundColor="lightgreen";
+        p.innerText = `Пользователь ${memberName} подключился к комнате`;
+        let firstElem = document.getElementById("messages").firstChild;
+        document.getElementById("messasges").insertBefore(p, firstElem);
+    });
+
+        connection.on("MemberLeft", memberName=>{
+        let p = document.createElement("p");
+        p.style.backgroundColor="red";
+        p.innerText = `Пользователь ${memberName} покинул комнату`;
+        let firstElem = document.getElementById("messages").firstChild;
+        document.getElementById("messasges").insertBefore(p, firstElem);
+    });
+
+    document.getElementById("btnsendmsg").addEventListener("click", e=>{
+        let msg = document.getElementById("msg").value;
+        if(msg!=null&&msg!=""&&msg!=" "){
+        connection.invoke("NewMessage", "@Html.Raw(Model.RoomName)", "@Html.Raw(Model.UserName)", msg);
+        document.getElementById("msg").value="";
+        } else{
+            alert("Сообщение не может быть пустым");
+            return;
+        }
+
+    });
+
+    window.addEventListener("unload", leave);
+    window.addEventListener("beforeunload", leave);
+    window.addEventListener("close", leave);
+    function leave(e){
+        connection.invoke("MemberLeft", "@Html.Raw(Model.RoomName)", "@Html.Raw(Model.UserName)");
+    }
+</script>
