@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,7 @@ namespace ChatApp
             services.AddTransient<ChatHub>();
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DBContent>(options => options.UseSqlServer(connection));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

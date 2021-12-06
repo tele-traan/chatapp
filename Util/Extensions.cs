@@ -20,28 +20,33 @@ namespace ChatApp.Util
             context.RequestServices.GetRequiredService<DBContent>();
 
         /// <summary>
-        /// Gets the list containing connection ids of users who should not get the notifications from hub invocations
+        /// Gets the list containing connection IDs of users who should get the notifications from hub invocations
         /// </summary>
-        /// <param name="hub">The hub that provides the HubCallerContext</param>
-        /// <param name="roomName">Name of the specific room which contains all the users who SHOULD get the notifications</param>
-        /// <returns>The list of excluded connection ids</returns>
-        public static List<string> GetExcluded(this RoomHub hub, string roomName)
+        /// <param name="hub">The hub that provides its HubCallerContext</param>
+        /// <param name="roomName">Name of the specific room which contains all the users who should get the notifications</param>
+        /// <returns>The list of users connection IDs</returns>
+        public static List<string> GetIds(this RoomHub hub, string roomName)
         {
             List<string> list = new();
             var context = hub.Context.GetHttpContext();
             var dbContent = context.GetDbContent();
             var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
-            list = room.Users.Where(u => !room.Users.Contains(u)).Select(u => u.UserConnectionId).ToList();
+            list = room.Users.Select(u => u.UserConnectionId).ToList();
             return list;
         }
-        
-        public static List<string> GetExcluded(this RoomController controller, string roomName)
+        /// <summary>
+        /// Gets the list containing connection IDs of users who should get the notifications from hub invocations
+        /// </summary>
+        /// <param name="controller">The controller that provides its HttpContext</param>
+        /// <param name="roomName">Name of the specific room which contains all the users who should get the notifications</param>
+        /// <returns>The list of users connection IDs</returns>
+        public static List<string> GetIds(this RoomController controller, string roomName)
         {
             List<string> list = new();
             var context = controller.HttpContext;
             var dbContent = context.GetDbContent();
             var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
-            list = room.Users.Where(u => !room.Users.Contains(u)).Select(u => u.UserConnectionId).ToList();
+            list = room.Users.Select(u => u.UserConnectionId).ToList();
             return list;
         }
     }

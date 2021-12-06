@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 namespace ChatApp.Controllers
 {
     public class RoomController : Controller
@@ -22,6 +23,9 @@ namespace ChatApp.Controllers
         public IActionResult RoomIndex(string type) => View(new RoomViewModel { Message=type});
         public IActionResult Create(RoomViewModel model)
         {
+            ISession session = HttpContext.Session;
+            session.SetString("UserName", model.UserName.Trim());
+            session.SetString("RoomName", model.RoomName);
             var room = _dbContent.Rooms.FirstOrDefault(m => m.Name == model.RoomName);
             if (room == null)
             {
@@ -39,13 +43,14 @@ namespace ChatApp.Controllers
         }
         public IActionResult Connect(RoomViewModel model)
         {
+            ISession session = HttpContext.Session;
+            session.SetString("UserName", model.UserName);
+            session.SetString("RoomName", model.RoomName);
             var room = _dbContent.Rooms.FirstOrDefault(r => r.Name == model.RoomName);
             if (room != null)
             {
-                _roomHub.Clients.All//Except(this.GetExcluded(model.RoomName))
+                _roomHub.Clients.Clients(this.GetIds(model.RoomName))
                     .SendAsync("MemberJoined", model.UserName);
-                room.Users.Add(new User { Username = model.UserName});
-                _dbContent.SaveChanges();
                 var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, IsAdmin = false };
                 return View(viewName: "Index", obj);
             }

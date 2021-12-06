@@ -12,7 +12,7 @@ namespace ChatApp.Hubs
         public async Task NewMessageRequest(string message, string sender)
         {
             var time = System.DateTime.Now.ToShortTimeString();
-            await Clients.All.SendAsync("NewMessage", time, sender, message);
+            await Clients.All.SendAsync("NewMessage", time, sender, message.Trim());
         }
         public async Task MemberLeft(string whoLeft)
         {

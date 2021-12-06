@@ -12,13 +12,9 @@
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
 <script>
     var connection = new signalR.HubConnectionBuilder().withUrl("/roomhub").build();
-    document.addEventListener("load", ()=>{
-        connection.invoke("MemberJoined", "@Html.Raw(Model.RoomName)", "@Html.Raw(Model.UserName)");
-    });
     connection.start();
 
     connection.on("NewMessage", (time, sender, msg)=>{
-
         let p = document.createElement("p");
         p.innerText = `${time} ${sender}: ${msg}`;
         let firstElem = document.getElementById("messages").firstChild;
