@@ -31,6 +31,7 @@ namespace ChatApp.Controllers
             {
                 room = new() { Name = model.RoomName };
                 _dbContent.Rooms.Add(room);
+                _dbContent.Rooms.FirstOrDefault(r => r.Name == model.RoomName).Users.Add(new User { Username = model.UserName });
                 _dbContent.SaveChanges();
                 var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, IsAdmin = true };
                 return View(viewName: "Index", obj);

@@ -20,8 +20,10 @@ namespace ChatApp.Hubs
             {
                 var dbContent = Context.GetHttpContext().GetDbContent();
                 var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
-                var user = room.Users.FirstOrDefault(u => u.Username == userName);
-                room.Users.Add(new User { Username = userName, UserConnectionId = Context.ConnectionId });
+                room.Users.FirstOrDefault(u => u.Username == userName).UserConnectionId = Context.ConnectionId;
+                dbContent.SaveChanges();
+                await Clients.Clients(this.GetIds(roomName))
+                    .SendAsync("NewMessage", $"roomNull-{room==null}", $"userЛаст-{room.Users.Last()}", $"session is null - {session==null}");
                 await base.OnConnectedAsync();
             }
             else
@@ -32,16 +34,16 @@ namespace ChatApp.Hubs
 
         public async override Task OnDisconnectedAsync(Exception exception)
         {
-            ISession session = Context.GetHttpContext().Session;
-            string userName = session.GetString("UserName");
-            string roomName = session.GetString("RoomName");
-            bool condition = !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(roomName);
-            if (condition)
-            {
-                var dbContent = Context.GetHttpContext().GetDbContent();
-                var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
-                room.Users.Remove(room.Users.FirstOrDefault(u => u.Username == userName));
-            }
+            //ISession session = Context.GetHttpContext().Session;
+            //string userName = session.GetString("UserName");
+            //string roomName = session.GetString("RoomName");
+            //bool condition = !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(roomName);
+            //if (condition)
+            //{
+            //    var dbContent = Context.GetHttpContext().GetDbContent();
+            //    var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
+            //    room.Users.Remove(room.Users.FirstOrDefault(u => u.Username == userName));
+            //}
             await base.OnDisconnectedAsync(exception);
         }
         public void MemberJoined(string roomName, string memberName)
@@ -65,6 +67,7 @@ namespace ChatApp.Hubs
 
             List<string> ids = this.GetIds(roomName);
             await Clients.Clients(ids).SendAsync("MemberLeft", memberName);
+            await OnDisconnectedAsync(null);
         }
         public async Task NewMessage(string roomName, string memberName, string message)
         {

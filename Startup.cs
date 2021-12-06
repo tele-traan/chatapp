@@ -22,12 +22,15 @@ namespace ChatApp
             services.AddMvc();
             services.AddSignalR();
             services.AddTransient<ChatHub>();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DBContent>(options => options.UseSqlServer(connection));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSession();
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
             app.UseRouting();
