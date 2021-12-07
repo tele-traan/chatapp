@@ -5,7 +5,6 @@ namespace ChatApp.Models
     {
         public int RoomId { get; set; }
         public string Name { get; set; }
-        public List<User> Users { get; set; } = new();
-        public List<User> Admins { get; set; } = new();
+        public List<User> Users { get; set; }
     }
 }

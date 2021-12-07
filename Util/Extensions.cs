@@ -1,12 +1,16 @@
-﻿using ChatApp.Models;
-using ChatApp.DB;
+﻿using ChatApp.DB;
 using ChatApp.Hubs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.SignalR;
-using System.Linq;
+using ChatApp.Models;
 using ChatApp.Controllers;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+using System.Linq;
+using System.Collections.Generic;
+
 namespace ChatApp.Util
 {
     public static class Extensions
@@ -30,7 +34,7 @@ namespace ChatApp.Util
             List<string> list = new();
             var context = hub.Context.GetHttpContext();
             var dbContent = context.GetDbContent();
-            var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
+            var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
             list = room.Users.Select(u => u.UserConnectionId).ToList();
             return list;
         }
@@ -45,7 +49,7 @@ namespace ChatApp.Util
             List<string> list = new();
             var context = controller.HttpContext;
             var dbContent = context.GetDbContent();
-            var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
+            var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
             list = room.Users.Select(u => u.UserConnectionId).ToList();
             return list;
         }
