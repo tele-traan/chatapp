@@ -47,6 +47,7 @@ namespace ChatApp.Hubs
                 var dbContent = Context.GetHttpContext().GetDbContent();
                 var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
                 room.Users.Remove(room.Users.FirstOrDefault(u => u.UserName == userName));
+                await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberLeft", userName);
             }
             await base.OnDisconnectedAsync(exception);
         }

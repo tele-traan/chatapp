@@ -37,7 +37,7 @@ namespace ChatApp.Controllers
                 _dbContent.Rooms.Add(room);
                 _dbContent.SaveChanges();
 
-                room = _dbContent.Rooms.IgnoreAutoIncludes().Include(r => r.Users).FirstOrDefault(r => r.Name == model.RoomName);
+                room = _dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == model.RoomName);
                 room.Users.Add(new RoomUser { UserName = model.UserName, Room = room, RoomId = room.RoomId });
                 _dbContent.SaveChanges();
 
@@ -56,9 +56,11 @@ namespace ChatApp.Controllers
             ISession session = HttpContext.Session;
             session.SetString("UserName", model.UserName);
             session.SetString("RoomName", model.RoomName);
-            var room = _dbContent.Rooms.FirstOrDefault(r => r.Name == model.RoomName);
+            var room = _dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == model.RoomName);
             if (room != null)
             {
+                room.Users.Add(new RoomUser { UserName = model.UserName });
+                _dbContent.SaveChanges();
                 _roomHub.Clients.Clients(this.GetIds(model.RoomName))
                     .SendAsync("MemberJoined", model.UserName);
                 var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, IsAdmin = false };
