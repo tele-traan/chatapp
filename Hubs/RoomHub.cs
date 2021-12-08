@@ -17,7 +17,6 @@ namespace ChatApp.Hubs
             ISession session = Context.GetHttpContext().Session;
             string userName = session.GetString("UserName");
             string roomName = session.GetString("RoomName");
-            await Clients.All.SendAsync("NewMessage", "1", "2", "3");
             bool condition = !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(roomName);
             if (condition)
             {
@@ -47,6 +46,7 @@ namespace ChatApp.Hubs
                 var dbContent = Context.GetHttpContext().GetDbContent();
                 var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
                 room.Users.Remove(room.Users.FirstOrDefault(u => u.UserName == userName));
+                dbContent.SaveChanges();
                 await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberLeft", userName);
             }
             await base.OnDisconnectedAsync(exception);

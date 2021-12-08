@@ -61,8 +61,6 @@ namespace ChatApp.Controllers
             {
                 room.Users.Add(new RoomUser { UserName = model.UserName });
                 _dbContent.SaveChanges();
-                _roomHub.Clients.Clients(this.GetIds(model.RoomName))
-                    .SendAsync("MemberJoined", model.UserName);
                 var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, IsAdmin = false };
                 return View(viewName: "Index", obj);
             }

@@ -57,9 +57,9 @@
 
     });
 
-    window.addEventListener("unload", leave);
-    window.addEventListener("close", leave);
-    function leave(e){
-        connection.invoke("MemberLeft", "@Html.Raw(Model.RoomName)", "@Html.Raw(Model.UserName)");
-    }
+    //window.addEventListener("unload", leave);
+    //window.addEventListener("close", leave);
+    //function leave(e){
+    //    connection.invoke("MemberLeft", "@Html.Raw(Model.RoomName)", "@Html.Raw(Model.UserName)");
+    //}
 </script>
