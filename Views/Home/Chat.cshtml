@@ -65,6 +65,7 @@ else{
             var input = document.getElementById("msg");
             var msg = document.getElementById("msg").value.trim();
             if(msg!="" && msg!=null && msg!= " "){
+                input.value="";
                 connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.UserName)");
             }
         } 

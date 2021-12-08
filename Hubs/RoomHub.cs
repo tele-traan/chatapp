@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.Hubs
@@ -23,17 +22,17 @@ namespace ChatApp.Hubs
             if (condition)
             {
                 var dbContent = Context.GetHttpContext().GetDbContent();
-                var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
-                var user = room.Users?.FirstOrDefault(u => u.Username == userName);
+                var room = dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == roomName);
+                var user = room.Users.FirstOrDefault(u => u.UserName == userName);
                 user.UserConnectionId = Context.ConnectionId;
                 dbContent.SaveChanges();
-                   await Clients.Clients(this.GetIds(roomName)).SendAsync("NewMessage", 
-                       $"roomName-{room.Name}", $"username-{user.Username}", $"roomUsersCount={room.Users?.Count}");
-                }
-                else
-                {
-                    await Clients.Caller.SendAsync("ErrorLogging", "Ошибка при входе в комнату. Попробуйте ещё раз");
-                }
+                await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberJoined", userName);
+                
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("ErrorLogging", "Ошибка при входе в комнату. Попробуйте ещё раз");
+            }
             await base.OnConnectedAsync();  
         }
 
@@ -46,8 +45,8 @@ namespace ChatApp.Hubs
             if (condition)
             {
                 var dbContent = Context.GetHttpContext().GetDbContent();
-                var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
-                room.Users.Remove(room.Users.FirstOrDefault(u => u.Username == userName));
+                var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
+                room.Users.Remove(room.Users.FirstOrDefault(u => u.UserName == userName));
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -58,7 +57,7 @@ namespace ChatApp.Hubs
 
             var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
 
-            room.Users.Add(new User { Username = memberName, UserConnectionId = Context.ConnectionId });
+            room.Users.Add(new RoomUser { UserName = memberName, UserConnectionId = Context.ConnectionId });
             dbContent.SaveChanges();
         }
         public async Task MemberLeft(string roomName, string memberName)
@@ -67,7 +66,7 @@ namespace ChatApp.Hubs
             var dbContent = httpContext.GetDbContent();
 
             var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName); 
-            room.Users.Remove(room.Users.FirstOrDefault(u=>u.Username == memberName&&u.UserConnectionId==Context.ConnectionId));
+            room.Users.Remove(room.Users.FirstOrDefault(u=>u.UserName == memberName&&u.UserConnectionId==Context.ConnectionId));
             dbContent.SaveChanges();
 
             List<string> ids = this.GetIds(roomName);

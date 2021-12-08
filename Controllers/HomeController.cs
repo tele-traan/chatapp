@@ -19,8 +19,10 @@ namespace ChatApp.Controllers
         }
         public IActionResult Index(string message)
         {
-            int users = _dbContent.Users.Count();
-            var model = new BaseViewModel { Message = message ?? $"Привет! На данный момент в чате {users} человек" };
+            int users = _dbContent.GlobalChatUsers.Count();
+            int rusers = _dbContent.RoomUsers.Count();
+            var model = new BaseViewModel { Message = message ?? 
+                $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек" };
             return View(model);
         }
         public async Task<IActionResult> Chat(BaseViewModel model)
@@ -30,7 +32,7 @@ namespace ChatApp.Controllers
             session.SetString("UserName", userName);
             if (userName != null && userName != "" && userName != " ")
             {
-                _dbContent.Users.Add(new User { Username = userName });
+                _dbContent.GlobalChatUsers.Add(new GlobalChatUser { UserName = userName });
                 _dbContent.SaveChanges();
                 await _hub.Clients.All.SendAsync("MemberJoined", userName);
             }

@@ -1,8 +1,8 @@
 ﻿namespace ChatApp.Models
 {
-    public class BaseViewModel
+    public class GlobalChatUser
     {
-        public string Message { get; set; } = "";
+        public int Id { get; set; }
         public string UserName { get; set; }
     }
 }

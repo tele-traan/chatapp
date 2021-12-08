@@ -4,7 +4,6 @@ using ChatApp.Models;
 using ChatApp.Hubs;
 using ChatApp.Util;
 using Microsoft.AspNetCore.SignalR;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,11 @@ namespace ChatApp.Controllers
             _roomHub = roomHub;
             _dbContent = dbContent;
         }
-        public IActionResult RoomIndex(string type) => View(new RoomViewModel { Message=type});
+        public IActionResult RoomIndex(string type) => View(new RoomViewModel { Message = type });
+        /*{
+
+            TODO (auto generated method stub :D)
+        }*/
         public IActionResult Create(RoomViewModel model)
         {
             ISession session = HttpContext.Session;
@@ -33,11 +36,13 @@ namespace ChatApp.Controllers
                 room = new() { Name = model.RoomName, Users=new() };
                 _dbContent.Rooms.Add(room);
                 _dbContent.SaveChanges();
-                room = _dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == model.RoomName);
-                room.Users.Add(new User { Username = model.UserName, Room = room, RoomId = room.RoomId });
+
+                room = _dbContent.Rooms.IgnoreAutoIncludes().Include(r => r.Users).FirstOrDefault(r => r.Name == model.RoomName);
+                room.Users.Add(new RoomUser { UserName = model.UserName, Room = room, RoomId = room.RoomId });
                 _dbContent.SaveChanges();
+
                 var obj = new RoomViewModel 
-                { UserName = model.UserName, RoomName = model.RoomName, Message=$"roomID={room.RoomId}" };
+                { UserName = model.UserName, RoomName = model.RoomName, Message=$"Комната {model.RoomName}", IsAdmin=true };
                 return View(viewName: "Index", obj);
             }
             else
