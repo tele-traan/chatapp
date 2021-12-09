@@ -29,6 +29,7 @@ namespace ChatApp.Controllers
         {
             ISession session = HttpContext.Session;
             session.SetString("UserName", model.UserName);
+            session.SetString("IsAdmin", "true");
             session.SetString("RoomName", model.RoomName);
             var room = _dbContent.Rooms.FirstOrDefault(m => m.Name == model.RoomName);
             if (room == null)
@@ -42,7 +43,7 @@ namespace ChatApp.Controllers
                 _dbContent.SaveChanges();
 
                 var obj = new RoomViewModel 
-                { UserName = model.UserName, RoomName = model.RoomName, Message=$"Комната {model.RoomName}", IsAdmin=true };
+                { UserName = model.UserName, RoomName = model.RoomName, Message=$"Комната {model.RoomName}"};
                 return View(viewName: "Index", obj);
             }
             else
@@ -55,13 +56,14 @@ namespace ChatApp.Controllers
         {
             ISession session = HttpContext.Session;
             session.SetString("UserName", model.UserName);
+            session.SetString("IsAdmin", "false");
             session.SetString("RoomName", model.RoomName);
             var room = _dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == model.RoomName);
             if (room != null)
             {
                 room.Users.Add(new RoomUser { UserName = model.UserName });
                 _dbContent.SaveChanges();
-                var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, IsAdmin = false };
+                var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName };
                 return View(viewName: "Index", obj);
             }
             else 

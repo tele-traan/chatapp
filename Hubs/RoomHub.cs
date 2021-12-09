@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Http;
-using ChatApp.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using ChatApp.Util;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.Hubs
 {
@@ -25,8 +24,7 @@ namespace ChatApp.Hubs
                 var user = room.Users.FirstOrDefault(u => u.UserName == userName);
                 user.UserConnectionId = Context.ConnectionId;
                 dbContent.SaveChanges();
-                await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberJoined", userName);
-                
+                await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberJoined", userName);   
             }
             else
             {
@@ -51,48 +49,36 @@ namespace ChatApp.Hubs
             }
             await base.OnDisconnectedAsync(exception);
         }
-        public void MemberJoined(string roomName, string memberName)
-        {     
-            var httpContext = Context.GetHttpContext();
-            var dbContent = httpContext.GetDbContent();
-
-            var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName);
-
-            room.Users.Add(new RoomUser { UserName = memberName, UserConnectionId = Context.ConnectionId });
-            dbContent.SaveChanges();
-        }
-        public async Task MemberLeft(string roomName, string memberName)
+        public async Task NewMessage(string message)
         {
-            var httpContext = GetHttpContextExtensions.GetHttpContext(Context);
-            var dbContent = httpContext.GetDbContent();
-
-            var room = dbContent.Rooms.FirstOrDefault(r => r.Name == roomName); 
-            room.Users.Remove(room.Users.FirstOrDefault(u=>u.UserName == memberName&&u.UserConnectionId==Context.ConnectionId));
-            dbContent.SaveChanges();
-
-            List<string> ids = this.GetIds(roomName);
-            await Clients.Clients(ids).SendAsync("MemberLeft", memberName);
-            await OnDisconnectedAsync(null);
-        }
-        public async Task NewMessage(string roomName, string memberName, string message)
-        {
+            ISession session = Context.GetHttpContext().Session;
+            string userName = session.GetString("UserName");
+            string roomName = session.GetString("RoomName");
             string time = DateTime.Now.ToShortTimeString();
             List<string> ids = this.GetIds(roomName);
-            await Clients.Clients(ids).SendAsync("NewMessage", time, memberName, message.Trim());
+            await Clients.Clients(ids).SendAsync("NewMessage", time, userName, message.Trim());
         }
-        
-        public async Task RoomDeleted(string roomName)
+        public async Task RoomDeleted()
         {
-            var httpContext = GetHttpContextExtensions.GetHttpContext(Context);
-            var dbContent = httpContext.GetDbContent();
+            ISession session = Context.GetHttpContext().Session;
+            bool condition = session.GetString("IsAdmin") == "true";
+            if (condition)
+            {
+                string userName = session.GetString("UserName");
+                string roomName = session.GetString("RoomName");
 
-            var rooms = dbContent.Rooms;
-            var room = rooms.FirstOrDefault(r => r.Name == roomName);
+                var httpContext = Context.GetHttpContext();
+                var dbContent = httpContext.GetDbContent();
 
-            List<string> ids = this.GetIds(roomName);
-            rooms.Remove(room);
-            dbContent.SaveChanges();
-            await Clients.Clients(ids).SendAsync("RoomDeleted");
+                var rooms = dbContent.Rooms;
+                var room = rooms.FirstOrDefault(r => r.Name == roomName);
+
+                List<string> ids = this.GetIds(roomName);
+                await Clients.Clients(ids).SendAsync("RoomDeleted");
+
+                rooms.Remove(room);
+                dbContent.SaveChanges();
+            }
         }
     }
 }
