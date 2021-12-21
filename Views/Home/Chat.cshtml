@@ -1,82 +1,21 @@
 ﻿@model BaseViewModel
+
 @if(Model.UserName==null||Model.UserName==""||Model.UserName==" ")
 {
     Layout = null;
+    <div style="vertical-align: middle;align-content:center;">
     <h1 style="font-size:100%; margin:auto;">403</h1>
     <h3>Вы уверены, что перешли сюда с <a asp-controller="Home" 
         asp-action="Index" asp-route-message="Попробуйте снова">этой страницы</a>?</h3>
+    </div>
 }
 else{
-<style>
-    #messages{
-        border: 1px solid black;
-        border-radius: 5px;
-    }
-</style>
 <input id="msg" type="text" placeholder="Сообщение" />
 <button class="btn btn-outline-success"id="btn">Отправить</button>
+
+<div id="users"></div>
 <div id="messages"></div>
 
-
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-<script>
-    if(true){
-    var connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
-    connection.start();
-    
-    document.getElementById("btn").addEventListener("click", (e) => {
-        e.preventDefault();
-        let input = document.getElementById("msg");
-        let msg = input.value;
-        if(msg=="" || msg==" "||msg==null){
-            document.getElementById("msg").style.borderColor = "red";
-            alert("Сообщение не может быть пустым");
-            return;
-        }
-        document.getElementById("msg").style.borderColor = "gray";
-        input.value = "";
-        connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.UserName)");
-    });
-
-    connection.on("NewMessage", (time, sender, message)=>{
-        let elem = document.createElement("p");
-        elem.innerText = `${time} ${sender}: ${message}`;
-        let firstElem = document.getElementById("messages").firstChild;
-        document.getElementById("messages").insertBefore(elem, firstElem);
-    });
-
-    connection.on("MemberJoined", username=>{
-        let elem = document.createElement("p");
-        elem.style.backgroundColor = "lightgreen";
-        elem.innerText = `Пользователь ${username} подключился к чату`;
-        let firstElem = document.getElementById("messages").firstChild;
-        document.getElementById("messages").insertBefore(elem, firstElem);
-    });
-
-    connection.on("MemberLeft", username=>{
-        let elem = document.createElement("p");
-        elem.style.backgroundColor="red";
-        elem.innerText = `Пользователь ${username} покинул чат`;
-        let firstElem = document.getElementById("messages").firstChild;
-        document.getElementById("messages").insertBefore(elem, firstElem);
-    });
-    document.addEventListener("keypress", e=>{
-        if(e.key=="Enter"){
-            var input = document.getElementById("msg");
-            var msg = document.getElementById("msg").value.trim();
-            if(msg!="" && msg!=null && msg!= " "){
-                input.value="";
-                connection.invoke("NewMessageRequest", msg, "@Html.Raw(Model.UserName)");
-            }
-        } 
-    });
-    window.addEventListener("unload", leave);
-    window.addEventListener("beforeunload", leave);
-    window.addEventListener("close", leave);
-    function leave(e){ 
-        connection.invoke("MemberLeft", "@Html.Raw(Model.UserName)");
-        return null;
-    }
-    }
-</script>
+<script src="~/js/global-signalr.js"></script>
 }

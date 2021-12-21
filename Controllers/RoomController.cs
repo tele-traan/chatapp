@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ChatApp.DB;
 using ChatApp.Models;
-using ChatApp.Hubs;
-using ChatApp.Util;
-using Microsoft.AspNetCore.SignalR;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,19 +10,17 @@ namespace ChatApp.Controllers
 {
     public class RoomController : Controller
     {
-        private readonly IHubContext<RoomHub> _roomHub;
         private readonly DBContent _dbContent;
 
-        public RoomController(IHubContext<RoomHub> roomHub, DBContent dbContent)
+        public RoomController(DBContent dbContent)
         {
-            _roomHub = roomHub;
             _dbContent = dbContent;
         }
-        public IActionResult RoomIndex(string type) => View(new RoomViewModel { Message = type });
-        /*{
-
-            TODO (auto generated method stub :D)
-        }*/
+        public IActionResult RoomIndex(string type)
+        {
+            var roomList = _dbContent.Rooms.Include(r => r.Users).ToList();
+            return View(new RoomViewModel { Message = type, Rooms = roomList });
+        }
         public IActionResult Create(RoomViewModel model)
         {
             ISession session = HttpContext.Session;
@@ -37,13 +33,13 @@ namespace ChatApp.Controllers
                 room = new() { Name = model.RoomName, Users=new() };
                 _dbContent.Rooms.Add(room);
                 _dbContent.SaveChanges();
-
+                var user = new RoomUser { UserName = model.UserName, Room = room, IsAdmin = true };
                 room = _dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == model.RoomName);
-                room.Users.Add(new RoomUser { UserName = model.UserName, Room = room, RoomId = room.RoomId });
+                room.Users.Add(user);
                 _dbContent.SaveChanges();
 
                 var obj = new RoomViewModel 
-                { UserName = model.UserName, RoomName = model.RoomName, Message=$"Комната {model.RoomName}"};
+                { UserName = model.UserName, RoomName = model.RoomName, Message=$"Комната {model.RoomName}", UsersInRoom=new() { user } };
                 return View(viewName: "Index", obj);
             }
             else
@@ -61,12 +57,12 @@ namespace ChatApp.Controllers
             var room = _dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == model.RoomName);
             if (room != null)
             {
-                room.Users.Add(new RoomUser { UserName = model.UserName });
+                room.Users.Add(new RoomUser { UserName = model.UserName, IsAdmin = false });
                 _dbContent.SaveChanges();
-                var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName };
+                var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, UsersInRoom = room.Users.ToList() };
                 return View(viewName: "Index", obj);
             }
-            else 
+            else
             {
                 return RedirectToAction
                     (actionName: "Index", controllerName: "Home", new { Message = "Комнаты с таким названием не существует" });

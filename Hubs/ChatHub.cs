@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
-using ChatApp.DB;
 using ChatApp.Util;
 using ChatApp.Models;
 using System;
@@ -33,26 +31,22 @@ namespace ChatApp.Hubs
             ISession session = httpContext.Session;
             string userName = session.GetString("UserName");
 
+            await Clients.All.SendAsync("MemberLeft", userName);
             var dbContent = httpContext.GetDbContent();
             var users = dbContent.GlobalChatUsers;
             var user = users.FirstOrDefault(u => u.UserName == userName);
+
             users.Remove(user);
             dbContent.SaveChanges();
+            
             await base.OnDisconnectedAsync(exception);
         }
-        public async Task NewMessageRequest(string message, string sender)
+        public async Task NewMessage(string message)
         {
+            ISession session = Context.GetHttpContext().Session;
+            string userName = session.GetString("UserName");
             var time = DateTime.Now.ToShortTimeString();
-            await Clients.All.SendAsync("NewMessage", time, sender, message.Trim());
+            await Clients.All.SendAsync("NewMessage", time, userName, message.Trim());
         }
-        /*public async Task MemberLeft(string whoLeft)
-        {
-            HttpContext httpContext = GetHttpContextExtensions.GetHttpContext(Context);
-            DBContent dbContent =  httpContext.RequestServices.GetRequiredService<DBContent>();
-            var user = dbContent.RoomUsers.FirstOrDefault(u => u.UserName == whoLeft);
-            dbContent.RoomUsers.Remove(user);
-            dbContent.SaveChanges();
-            await Clients.All.SendAsync("MemberLeft", whoLeft);
-        }*/
     }
 }

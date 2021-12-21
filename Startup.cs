@@ -37,7 +37,8 @@ namespace ChatApp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Register}/{id?}");
+                endpoints.MapHub<AuthHub>("/authhub");
                 endpoints.MapHub<ChatHub>("/chathub");
                 endpoints.MapHub<RoomHub>("/roomhub");
             });

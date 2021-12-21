@@ -1,0 +1,17 @@
+﻿<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/sitestyle.css" />
+
+@{
+    Layout = null;
+}
+    <div id="divreg">
+<form method="post" action="/Auth/Auth/">
+    <h1>Зарегистрируйтесь</h1>
+    <input type="text" id="UserName" name="UserName" placeholder="Ваш ник" /><br />
+    <input type="password" id="Password" name="Password" placeholder="Пароль" /><br />
+    <input type="password" id="password-repeat" placeholder="Повторите пароль" /><br />
+    <input class="btn btn-outline-success" type="submit" id="btnreg" value="Зарегистрироваться"/><br />
+</form>
+    </div>
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/reg-script.js"></script>

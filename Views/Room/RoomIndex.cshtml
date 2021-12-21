@@ -1,10 +1,12 @@
 ﻿@model RoomViewModel
+
 @if(Model.Message=="create"){
 @using(Html.BeginForm("Create", "Room", FormMethod.Post)){
     @Html.LabelFor(m=>m.UserName, "Ваш ник:")
     @Html.TextBoxFor(m=>m.UserName)<br />
-    @Html.LabelFor(m=>m.RoomName, "Название комнаты:")
-    @Html.TextBoxFor(m=>m.RoomName)<br />
+
+    @Html.LabelFor(m=>m.RoomName, "Название комнаты:");
+    @Html.TextBoxFor(m=>m.RoomName);
     <input class="btn btn-outline-success" type="submit" value="Создать комнату" />
     }
 }
@@ -12,10 +14,22 @@ else
 {
     @using (Html.BeginForm("Connect", "Room", FormMethod.Post))
     {
-     @Html.LabelFor(m=>m.UserName, "Ваш ник:")
-     @Html.TextBoxFor(m=>m.UserName)<br />
-          @Html.LabelFor(m=>m.RoomName, "Название комнаты:")
-     @Html.TextBoxFor(m=>m.RoomName)<br />
-     <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
+        @Html.LabelFor(m=>m.UserName, "Ваш ник:")
+        @Html.TextBoxFor(m=>m.UserName)<br />
+
+
+        @foreach (var v in Model.Rooms)
+        {
+            @using (Html.BeginForm("Connect", "Room", FormMethod.Post))
+            {
+                <p>Комната @v.Name</p><br />
+                <p>Участников: @v.Users.Count</p><br />
+                <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
+                <hr />
+                @Html.Hidden("RoomName", v.Name)
+            }
+
+        }
+
     }
 }

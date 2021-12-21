@@ -41,5 +41,4 @@ document.getElementById("btnsendmsg").addEventListener("click", e => {
         alert("Сообщение не может быть пустым");
         return;
     }
-
 });

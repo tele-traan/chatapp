@@ -5,11 +5,11 @@
 @using(Html.BeginForm("Chat", "Home", FormMethod.Post))
 {
     @Html.TextBoxFor(model=>model.UserName, new {placeholder="Ваш никнейм"});
-    <input type="submit" value = "Войти в чат">
+    <input class="btn btn-outline-success" type="submit" value="Войти в чат">
 }
 <hr />
-<h2>Создать свою комнату</h2> 
-@Html.ActionLink("Создать", "RoomIndex", "Room", new{type="create"}, new{style="display:inline-block;", @class="btn btn-outline-success"})
+<h2 style="display:inline-block;">Создать свою комнату</h2> 
+@Html.ActionLink("Создать", "RoomIndex", "Room", new{type="create"}, new{@class="btn btn-outline-success"})
 <hr />
-<h2>Войти в существующую комнату</h2>
-@Html.ActionLink("Войти", "RoomIndex", "Room", new{type="connect"}, new{style="display:inline-block;", @class="btn btn-outline-success"})
+<h2 style="display:inline-block;">Войти в существующую комнату</h2>
+@Html.ActionLink("Войти", "RoomIndex", "Room", new{type="connect"}, new{@class="btn btn-outline-success"})
