@@ -21,10 +21,6 @@ namespace ChatApp.Controllers
             }
             return View();
         }
-        public IActionResult AfterChange()
-        {
-            return RedirectToAction(actionName: "Index", controllerName: "Home");
-        }
         public IActionResult Register(string msg) => View(model:msg);
         public IActionResult Login(string msg) => View(model:msg);
 

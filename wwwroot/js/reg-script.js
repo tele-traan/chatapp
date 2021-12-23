@@ -8,28 +8,35 @@ connection.on("Result", result => {
     if (result == "available") {
 
         input.style.border = "1px solid lawngreen";
-        submitBtn.setAttribute("type", "submit");
         submitBtn.onclick = handler;
     }
     else
     {
         input.style.borderColor = "red";
-        submitBtn.setAttribute("type", "");
-        handler = submitBtn.onclick;
+        submitBtn.onclick = null;
         alert("Это имя пользователя уже занято");
+
     }
 });
-let btn = document.getElementById("btnreg");
 
-    btn.addEventListener("click", e => {
-        let condition = document.getElementById("Password").value != ""
+submitBtn.addEventListener("click", e => {
+    let password = document.getElementById("Password").value;
+        let condition = password != ""
             && document.getElementById("Password").value == document.getElementById("password-repeat").value;
         if (!condition) {
             e.preventDefault();
             alert("Пароли не совпадают!");
             document.getElementById("Password").value = "";
             document.getElementById("password-repeat").value = "";
+            return;
         }
+    let secondCondition = password.match(/^.*(?=.{7,})(?=.*[a-zA-Z])(?=.*\d).*$/ig).length == 0;
+    if (!secondCondition) {
+        document.getElementById("Password").value = "";
+        document.getElementById("password-repeat").value = "";
+        alert("Пароль должен содержать от 7 символов - букв и цифр");
+        return;
+    }
 
     });
 input.addEventListener("change", () => {
