@@ -11,9 +11,11 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="navbar-brand"><a id="main" href="/">Овощечат</a></div>
-        <div class="nav-item"><a id="gc" href="/GlobalChat">Глобальный чат</a></div>
+        <div class="nav-item"><a id="gc" href="/Home/Chat">Глобальный чат</a></div>
         <div class="nav-item"><a id="rooms" href="/Room/RoomIndex?type=connect">Комнаты</a></div>
     </nav>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/pinger.js"></script>
     <div>
         @RenderBody()
     </div>

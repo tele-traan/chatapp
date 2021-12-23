@@ -1,6 +1,9 @@
 ﻿var connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
 connection.start();
 
+var pinger = new signalR.HubConnectionBuilder().withUrl("/pinghub").build();
+pinger.start();
+
 document.getElementById("btn").addEventListener("click", (e) => {
    e.preventDefault();
    let input = document.getElementById("msg");
@@ -26,6 +29,11 @@ document.getElementById("btn").addEventListener("click", (e) => {
         elem.innerText = `Пользователь ${username} подключился к чату`;
         let firstElem = document.getElementById("messages").firstChild;
         document.getElementById("messages").insertBefore(elem, firstElem);
+
+        let p = document.createElement("p");
+        p.setAttribute("id", `${username}`);
+        p.textContent = `Пользователь ${username}`;
+        document.getElementById("users").appendChild(p);
     });
     connection.on("MemberLeft", username => {
         let elem = document.createElement("p");

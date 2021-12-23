@@ -22,13 +22,14 @@ namespace ChatApp.Controllers
                 $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек" };
             return View(model);
         }
-        public IActionResult Chat(BaseViewModel model)
+        public IActionResult Chat()
         {
-            string userName = model.UserName;
             ISession session = HttpContext.Session;
-            if (userName == null) return RedirectToAction("Index");
-            session.SetString("UserName", userName);
-            return View(model);
+            string userName = session.GetString("UserName");
+            bool condition = userName != null
+                && _dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName) != null;
+            if (!condition) return RedirectToAction(actionName:"Login", controllerName:"Auth");
+            return View();
         }
     }
 }

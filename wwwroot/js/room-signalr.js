@@ -1,6 +1,9 @@
 ﻿var connection = new signalR.HubConnectionBuilder().withUrl("/roomhub").build();
 connection.start();
 
+var pinger = new signalR.HubConnectionBuilder().withUrl("/pinghub").build();
+pinger.start();
+
 connection.on("ErrorLogging", msg => {
     alert(msg);
     setTimeout(() => {

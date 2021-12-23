@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ChatApp.Util;
+using ChatApp.DB;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace ChatApp.Hubs
                 var dbContent = Context.GetHttpContext().GetDbContent();
                 var room = dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == roomName);
                 var user = room.Users.FirstOrDefault(u => u.UserName == userName);
-                user.UserConnectionId = Context.ConnectionId;
+                user.ConnectionId = Context.ConnectionId;
                 dbContent.SaveChanges();
                 await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberJoined", userName);   
             }
@@ -60,15 +61,13 @@ namespace ChatApp.Hubs
         }
         public async Task RoomDeleted()
         {
-            ISession session = Context.GetHttpContext().Session;
+            this.GetServices(out HttpContext httpContext, out DBContent dbContent);
+            ISession session = httpContext.Session;
             bool condition = session.GetString("IsAdmin") == "true";
             if (condition)
             {
                 string userName = session.GetString("UserName");
                 string roomName = session.GetString("RoomName");
-
-                var httpContext = Context.GetHttpContext();
-                var dbContent = httpContext.GetDbContent();
 
                 var rooms = dbContent.Rooms;
                 var room = rooms.FirstOrDefault(r => r.Name == roomName);

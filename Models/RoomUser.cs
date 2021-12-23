@@ -5,7 +5,7 @@ namespace ChatApp.Models
     {
         public int RoomUserId { get; set; }
         public string UserName { get; set; }
-        public string UserConnectionId { get; set; }
+        public string ConnectionId { get; set; }
         public bool IsAdmin { get; set; }
 
         public int RoomId { get; set; }

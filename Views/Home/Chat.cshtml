@@ -1,21 +1,7 @@
-﻿@model BaseViewModel
-
-@if(Model.UserName==null||Model.UserName==""||Model.UserName==" ")
-{
-    Layout = null;
-    <div style="vertical-align: middle;align-content:center;">
-    <h1 style="font-size:100%; margin:auto;">403</h1>
-    <h3>Вы уверены, что перешли сюда с <a asp-controller="Home" 
-        asp-action="Index" asp-route-message="Попробуйте снова">этой страницы</a>?</h3>
-    </div>
-}
-else{
-<input id="msg" type="text" placeholder="Сообщение" />
+﻿<input id="msg" type="text" placeholder="Сообщение" />
 <button class="btn btn-outline-success"id="btn">Отправить</button>
 
 <div id="users"></div>
 <div id="messages"></div>
 
-<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
 <script src="~/js/global-signalr.js"></script>
-}

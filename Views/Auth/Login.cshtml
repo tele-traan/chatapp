@@ -1,5 +1,19 @@
-﻿
-<h1>Войдите</h1>
-<input type="text" id="login" placeholder="Логин"/>
-<input type="password" id="password" placeholder="Пароль" />
-<button id="btnlog">Войти</button>
+﻿@model string
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="~/css/sitestyle.css" />
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+<div id="divlog">
+<form method="post" action="/Auth/Login/">
+<h1>@(Model==null ? "Войдите" : Model)</h1>
+<input type="text" id="UserName" name="UserName" placeholder="Логин"/><br />
+<input type="password" id="Password" name="Password" placeholder="Пароль" /><br />
+<input class="btn btn-outline-success" type="submit" value="Войти" />
+</form>
+<p>Ещё нет аккаунта?</p> <a class="btn btn-outline-success" href="/Auth/Register/">Зарегистрироваться</a>
+</div>
+
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/log-script.js"></script>

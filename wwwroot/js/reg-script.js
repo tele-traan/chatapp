@@ -2,19 +2,20 @@
 connection.start();
 
 let input = document.getElementById("UserName");
-
+let submitBtn = document.getElementById("btnreg");
+let handler = submitBtn.onclick;
 connection.on("Result", result => {
-    let submitBtn = document.getElementById("btnreg");
     if (result == "available") {
 
         input.style.border = "1px solid lawngreen";
         submitBtn.setAttribute("type", "submit");
-
+        submitBtn.onclick = handler;
     }
     else
     {
         input.style.borderColor = "red";
         submitBtn.setAttribute("type", "");
+        handler = submitBtn.onclick;
         alert("Это имя пользователя уже занято");
     }
 });

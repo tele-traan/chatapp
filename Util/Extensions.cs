@@ -35,7 +35,7 @@ namespace ChatApp.Util
             var context = hub.Context.GetHttpContext();
             var dbContent = context.GetDbContent();
             var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
-            list = room.Users.Select(u => u.UserConnectionId).ToList();
+            list = room.Users.Select(u => u.ConnectionId).ToList();
             return list;
         }
         /// <summary>
@@ -50,8 +50,13 @@ namespace ChatApp.Util
             var context = controller.HttpContext;
             var dbContent = context.GetDbContent();
             var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
-            list = room.Users.Select(u => u.UserConnectionId).ToList();
+            list = room.Users.Select(u => u.ConnectionId).ToList();
             return list;
+        }
+        public static void GetServices(this Hub hub, out HttpContext httpContext, out DBContent dbContent)
+        {
+            httpContext = hub.Context.GetHttpContext();
+            dbContent = httpContext.GetDbContent();
         }
     }
 }

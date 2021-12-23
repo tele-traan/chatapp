@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using ChatApp.Util;
 using ChatApp.Models;
+using ChatApp.DB;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
@@ -12,15 +13,14 @@ namespace ChatApp.Hubs
     {
         public async override Task OnConnectedAsync()
         {
-            var httpContext = Context.GetHttpContext();
+            this.GetServices(out HttpContext httpContext, out DBContent dbContent);
             ISession session = httpContext.Session;
             string userName = session.GetString("UserName");
 
             await Clients.All.SendAsync("MemberJoined", userName);
 
-            var dbContent = httpContext.GetDbContent();
-            var users = dbContent.GlobalChatUsers;
-            users.Add(new GlobalChatUser { UserName=userName});
+            var user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName);
+            user.GlobalChatUser = new GlobalChatUser { UserName=userName, ConnectionId = Context.ConnectionId};
             dbContent.SaveChanges();
 
             await base.OnConnectedAsync();

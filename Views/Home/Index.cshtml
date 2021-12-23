@@ -4,7 +4,6 @@
 <h2>Войти в глобальный чат:</h2>
 @using(Html.BeginForm("Chat", "Home", FormMethod.Post))
 {
-    @Html.TextBoxFor(model=>model.UserName, new {placeholder="Ваш никнейм"});
     <input class="btn btn-outline-success" type="submit" value="Войти в чат">
 }
 <hr />
