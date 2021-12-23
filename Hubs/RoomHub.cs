@@ -22,12 +22,12 @@ namespace ChatApp.Hubs
             {
                 var dbContent = Context.GetHttpContext().GetDbContent();
                 var room = dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == roomName);
-                var user = room.Users.FirstOrDefault(u => u.UserName == userName);
-                user.ConnectionId = Context.ConnectionId;
+                var user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName);
+                user.RoomUser.ConnectionId = Context.ConnectionId;
                 dbContent.SaveChanges();
                 await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberJoined", userName);   
             }
-            else
+            else //вчера остановился здесь - roomName всегда null и выкидывает ошибку
             {
                 await Clients.Caller.SendAsync("ErrorLogging", "Ошибка при входе в комнату. Попробуйте ещё раз");
             }
@@ -43,8 +43,8 @@ namespace ChatApp.Hubs
             if (condition)
             {
                 var dbContent = Context.GetHttpContext().GetDbContent();
-                var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
-                room.Users.Remove(room.Users.FirstOrDefault(u => u.UserName == userName));
+                var user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName);
+                user.RoomUser = null;
                 dbContent.SaveChanges();
                 await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberLeft", userName);
             }

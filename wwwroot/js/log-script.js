@@ -2,4 +2,3 @@
 connection.start();
 
 let input = document.getElementById("UserName");
-

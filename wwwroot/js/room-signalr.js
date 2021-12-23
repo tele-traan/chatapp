@@ -8,7 +8,7 @@ connection.on("ErrorLogging", msg => {
     alert(msg);
     setTimeout(() => {
         window.location.href =
-            `${window.location.protocol}://${window.location.host}`;
+            `/Room/RoomIndex?type=connect`;
     }, 3500);
 });
 connection.on("NewMessage", (time, sender, msg) => {
@@ -20,11 +20,15 @@ connection.on("NewMessage", (time, sender, msg) => {
 });
 
 connection.on("MemberJoined", memberName => {
-    let p = document.createElement("p");
-    p.style.backgroundColor = "lightgreen";
-    p.innerText = `Пользователь ${memberName} подключился к комнате`;
+    let elem = document.createElement("p");
+    elem.style.backgroundColor = "lightgreen";
+    elem.innerText = `Пользователь ${memberName} подключился к комнате`;
     let firstElem = document.getElementById("messages").firstChild;
-    document.getElementById("messages").insertBefore(p, firstElem);
+    document.getElementById("messages").insertBefore(elem, firstElem);
+
+    let p = document.createElement("p");
+    p.setAttribute("id", `${memberName}`);
+    document.getElementById("users").appendChild(p);
 });
 
 connection.on("MemberLeft", memberName => {

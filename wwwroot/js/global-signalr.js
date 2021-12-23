@@ -41,6 +41,9 @@ document.getElementById("btn").addEventListener("click", (e) => {
         elem.innerText = `Пользователь ${username} покинул чат`;
         let firstElem = document.getElementById("messages").firstChild;
         document.getElementById("messages").insertBefore(elem, firstElem);
+
+        let p = document.getElementById(`${username}`);
+        p.parentNode.removeChild(p);
     });
     document.addEventListener("keypress", e => {
         if (e.key == "Enter") {

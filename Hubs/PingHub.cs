@@ -26,7 +26,7 @@ namespace ChatApp.Hubs
             string userName = httpContext.Session.GetString("UserName");
             var user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName);
             user.OnlineNow = false;
-            user.ConnectionId = "";
+            user.ConnectionId = null;
             dbContent.SaveChanges();
             await base.OnDisconnectedAsync(exception);
         }

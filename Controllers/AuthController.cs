@@ -47,15 +47,18 @@ namespace ChatApp.Controllers
             ISession session = HttpContext.Session;
             string userName = model.UserName, password = model.Password;
             var user = _dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName && u.Password == password);
-            if (user != null && !user.OnlineNow)
+            if (user != null)
             {
-                session.SetString("UserName", model.UserName);
-                return RedirectToAction(actionName: "Index", controllerName: "Home");
-            }else if (user.OnlineNow)
-            {
-                return RedirectToAction(actionName: "Login", controllerName: "Auth", routeValues:new {msg="Этот пользователь уже в сети"});
-            }
-            else return RedirectToAction(actionName: "Login", controllerName: "Auth", routeValues:new {msg="Неверный логин или пароль. Попробуйте снова"});
+                if (!user.OnlineNow)
+                {
+                    session.SetString("UserName", model.UserName);
+                    return RedirectToAction(actionName: "Index", controllerName: "Home");
+                }
+                else
+                {
+                    return RedirectToAction(actionName: "Login", controllerName: "Auth", routeValues: new { msg = "Этот пользователь уже в сети" });
+                }
+            } else return RedirectToAction(actionName: "Login", controllerName: "Auth", routeValues:new {msg="Неверный логин или пароль. Попробуйте снова"});
         }
     }
 }

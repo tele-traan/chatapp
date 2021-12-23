@@ -2,10 +2,10 @@
 @{
     Layout = null;
 }
-<link rel="stylesheet" href="~/css/sitestyle.css" />
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" />
 
-<div id="divlog">
+<div id="div-main">
 <form method="post" action="/Auth/Login/">
 <h1>@(Model==null ? "Войдите" : Model)</h1>
 <input type="text" id="UserName" name="UserName" placeholder="Логин"/><br />

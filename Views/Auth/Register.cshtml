@@ -3,8 +3,8 @@
     Layout = null;
 }
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-<link rel="stylesheet" href="~/css/sitestyle.css" />
-    <div id="divreg">
+<link rel="stylesheet" href="~/css/site.css" />
+    <div id="div-main">
     <form method="post" action="/Auth/Register">
     <h1>@(Model==null ? "Зарегистрируйтесь" : Model)</h1>
     <input type="text" id="UserName" name="UserName" placeholder="Ваш ник" /><br />
@@ -14,6 +14,5 @@
     </form>
     <p>Уже есть аккаунт?</p> <a class="btn btn-outline-success" href="/Auth/Login/">Войдите</a>
     </div>
-
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
 <script src="~/js/reg-script.js"></script>

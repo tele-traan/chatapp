@@ -1,8 +1,8 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-#divreg, #divlog{
-    vertical-align:middle;
-    text-align:center;
+﻿
+#div-main {
+    text-align: center;
+    width: 100%;
+    height: 100%;
 }
 #users::before{
     content:'';

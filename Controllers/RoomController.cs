@@ -16,48 +16,47 @@ namespace ChatApp.Controllers
         {
             _dbContent = dbContent;
         }
-        public IActionResult RoomIndex(string type)
+#nullable enable
+        public IActionResult RoomIndex(string type, string? msg)
         {
             var roomList = _dbContent.Rooms.Include(r => r.Users).ToList();
-            return View(new RoomViewModel { Message = type, Rooms = roomList });
+            return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
         }
+#nullable disable
         public IActionResult Create(RoomViewModel model)
         {
             ISession session = HttpContext.Session;
-            session.SetString("UserName", model.UserName);
-            session.SetString("IsAdmin", "true");
-            session.SetString("RoomName", model.RoomName);
+            string userName = session.GetString("UserName");
             var room = _dbContent.Rooms.FirstOrDefault(m => m.Name == model.RoomName);
             if (room == null)
             {
+                var user = _dbContent.RegularUsers.FirstOrDefault(u => u.UserName == session.GetString("UserName"));
                 room = new() { Name = model.RoomName, Users=new() };
-                _dbContent.Rooms.Add(room);
-                _dbContent.SaveChanges();
-                var user = new RoomUser { UserName = model.UserName, Room = room, IsAdmin = true };
-                room = _dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == model.RoomName);
-                room.Users.Add(user);
+                if(user.RoomUser==null) user.RoomUser = new() { Room = room, UserName = session.GetString("UserName") };
                 _dbContent.SaveChanges();
 
                 var obj = new RoomViewModel 
-                { UserName = model.UserName, RoomName = model.RoomName, Message=$"Комната {model.RoomName}", UsersInRoom=new() { user } };
+                { UserName = model.UserName, 
+                    RoomName = model.RoomName, 
+                    Message=$"Комната {model.RoomName}", 
+                    UsersInRoom=new() { user.RoomUser } };
                 return View(viewName: "Index", obj);
             }
             else
             {
                 return RedirectToAction
-                    (actionName: "Index", controllerName: "Home", new { Message = "Комната с таким названием уже существует" });
+                    (actionName: "RoomIndex", controllerName: "Room", new { Message = "Комната с таким названием уже существует" });
             }
         }
         public IActionResult Connect(RoomViewModel model)
         {
             ISession session = HttpContext.Session;
-            session.SetString("UserName", model.UserName);
-            session.SetString("IsAdmin", "false");
-            session.SetString("RoomName", model.RoomName);
+            string userName = session.GetString("UserName");
             var room = _dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == model.RoomName);
+            var user = _dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName);
             if (room != null)
             {
-                room.Users.Add(new RoomUser { UserName = model.UserName, IsAdmin = false });
+                user.RoomUser = new() { Room = room, UserName = userName };
                 _dbContent.SaveChanges();
                 var obj = new RoomViewModel { UserName = model.UserName, RoomName = model.RoomName, UsersInRoom = room.Users.ToList() };
                 return View(viewName: "Index", obj);
