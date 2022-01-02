@@ -19,10 +19,18 @@ namespace ChatApp.DB
                 .IsRequired()
                 .HasForeignKey<GlobalChatUser>(gc => gc.RegularUserId);
 
+            builder.Entity<Room>()
+                .HasMany(r => r.Users)
+                .WithOne(ru => ru.Room)
+                .IsRequired()
+                .HasForeignKey(r => r.RoomId);
+
             builder.Entity<RoomUser>()
-                .HasOne(ro => ro.Room)
+                .HasOne(ru => ru.Room)
                 .WithMany(r => r.Users)
-                .IsRequired(false);
+                .IsRequired()
+                .HasForeignKey(ru => ru.RoomId);
+            
         }
         public DBContent(DbContextOptions<DBContent> options) : base(options)
         {

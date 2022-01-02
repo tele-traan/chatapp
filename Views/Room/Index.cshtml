@@ -1,25 +1,17 @@
 ﻿@model RoomViewModel
 
-@(Model.Message=="" ? $"Комната \"{Model.RoomName}\"" : Model.Message)
+@(Model.Message=="" ? $"Комната {Model.RoomName}" : Model.Message)
 <div id="div-main">
 <input type="text" id="msg" />
 <button id="btnsendmsg">Отправить</button>
 <br />
 <div id="messages"></div>
 <div id="users">
-<ul id="usersList">
-    @foreach(var u in Model.UsersInRoom)
-    {
-            @if (u.IsAdmin)
-            {
-                <li><p style="color:red; display:inline-block; width: min-content;">Админ</p> @u.UserName</li>
-            }
-            else 
-            {
-                <li><p>@u.UserName</p></li>
-            }
-    }
-</ul>
+
+    @foreach(var v in Model.UsersInRoom)
+        {
+            <p id="@v.UserName">@v.UserName</p>
+        }
 </div>
 </div>
-<script src="~/js/room-signalr.js"></script>
+<script src="~/js/room-signalr.js" asp-append-version="true"></script>

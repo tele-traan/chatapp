@@ -1,49 +1,56 @@
-﻿var connection = new signalR.HubConnectionBuilder().withUrl("/authhub").build();
-connection.start();
-
+﻿/*
 let input = document.getElementById("UserName");
 let submitBtn = document.getElementById("btnreg");
 let handler = submitBtn.onclick;
 connection.on("Result", result => {
     if (result == "available") {
         input.style.border = "1px solid lawngreen";
-        input.style.borderRadius = "1px";
+        input.setAttribute("placeholder", "Ваш ник");
         submitBtn.onclick = handler;
     }
     else
     {
-        input.style.borderColor = "red";
+        input.style.border = "1px solid red";
         submitBtn.onclick = null;
-        alert("Это имя пользователя уже занято");
+        input.value = "";
+        input.setAttribute("placeholder", "Этот никнейм занят");
     }
 });
 
-submitBtn.addEventListener("click", e => {
-
-    let password = document.getElementById("Password").value;
-        let condition = password != ""
-            && document.getElementById("Password").value == document.getElementById("password-repeat").value;
-        if (!condition) {
-            e.preventDefault();
-            alert("Пароли не совпадают!");
-            document.getElementById("Password").value = "";
-            document.getElementById("password-repeat").value = "";
-            return;
-        }
-    /*let secondCondition = password.match(/^.*(?=.{7,})(?=.*[a-zA-Z][а-яА-Я])(?=.*\d).*$/ig).length != 0;
-    if (!secondCondition) {
-        e.preventDefault();
-        document.getElementById("Password").value = "";
-        document.getElementById("password-repeat").value = "";
-        alert("Пароль должен содержать от 7 символов - букв и цифр");
-        return;
-    }*/
-
-    });
 input.addEventListener("change", () => {
 
     let userName = input.value;
     if (userName == "") return;
     connection.invoke("Check", userName);
 
+});*/
+
+$(function () {
+    var connection = new signalR.HubConnectionBuilder().withUrl("/authhub").build();
+    connection.start();
+    let inp = $('input[name="UserName"]');
+    connection.on("Result", result => {
+        if (result == "available") {
+            inp.css('border', '1px solid lawngreen');
+            inp.attr("placeholder", "Ваш ник");
+        }
+        
+        else {
+            inp.css('border', '1px solid red');
+            inp.val("")
+            inp.attr("placeholder", "Этот никнейм занят");
+        }
+    });
+
+    $('input[name="show-pass"]').on("click", function () {
+        if ($(this).prop("checked")) {
+            $('input[name="Password"').attr('type', 'text');
+        } else $('input[name=Password').attr('type', 'password');
+    });
+
+    $('input[name="show-pass-confirm"]').on("click", function () {
+        if ($(this).prop("checked")) {
+            $('input[name="ConfirmPassword"').attr('type', 'text');
+        } else $('input[name=ConfirmPassword').attr('type', 'password');
+    });
 });

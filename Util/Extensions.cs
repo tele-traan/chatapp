@@ -29,13 +29,12 @@ namespace ChatApp.Util
         /// <param name="hub">The hub that provides its HubCallerContext</param>
         /// <param name="roomName">Name of the specific room which contains all the users who should get the notifications</param>
         /// <returns>The list of users connection IDs</returns>
-        public static List<string> GetIds(this RoomHub hub, string roomName)
+        public static List<string> GetIds(this Hub hub, string roomName)
         {
             List<string> list = new();
-            var context = hub.Context.GetHttpContext();
-            var dbContent = context.GetDbContent();
+            hub.GetServices(out HttpContext context, out DBContent dbContent);
             var room = dbContent.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == roomName);
-            list = room.Users.Select(u => u.ConnectionId).ToList();
+            list = dbContent.RoomUsers.Where(u => u.Room.Name == roomName).Select(u => u.ConnectionId).ToList();
             return list;
         }
         /// <summary>

@@ -71,4 +71,4 @@ C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Room\In
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Room\RoomIndex.cshtml.g.cs
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Auth\Login.cshtml.g.cs
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Auth\Register.cshtml.g.cs
-C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Auth\Change.cshtml.g.cs
+C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Auth\Manage.cshtml.g.cs

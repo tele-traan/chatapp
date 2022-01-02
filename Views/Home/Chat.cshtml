@@ -1,7 +1,14 @@
-﻿<input id="msg" type="text" placeholder="Сообщение" />
+﻿@model ChatViewModel
+<input id="msg" type="text" placeholder="Сообщение" />
 <button class="btn btn-outline-success"id="btn">Отправить</button>
 
-<div id="users"></div>
+<div id="users">
+
+    @foreach(var v in Model.Users)
+    {
+        <p id="@v.UserName">Пользователь @v.UserName</p>
+    }
+</div>
 <div id="messages"></div>
 
 <script src="~/js/global-signalr.js"></script>

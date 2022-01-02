@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using ChatApp.Hubs;
 using ChatApp.DB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 namespace ChatApp
 {
     public class Startup
@@ -27,13 +29,26 @@ namespace ChatApp
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DBContent>(options => options.UseSqlServer(connection));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new PathString("/Auth/Register");
+                    options.AccessDeniedPath = new PathString("/Home/Index");
+                });
         }
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSession();
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+            if(env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
             app.UseStaticFiles();
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

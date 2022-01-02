@@ -1,18 +1,31 @@
-﻿@model string
+﻿@model RegisterViewModel
 @{
     Layout = null;
 }
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 <link rel="stylesheet" href="~/css/site.css" />
+
     <div id="div-main">
-    <form method="post" action="/Auth/Register">
-    <h1>@(Model==null ? "Зарегистрируйтесь" : Model)</h1>
-    <input type="text" id="UserName" name="UserName" placeholder="Ваш ник" /><br />
-    <input type="password" id="Password" name="Password" placeholder="Пароль" /><br />
-    <input type="password" id="password-repeat" placeholder="Повторите пароль" /><br />
+    <form asp-antiforgery="true" method="post" action="/Auth/Register">
+    <h1>@(Model.Message??"Зарегистрируйтесь")</h1>
+
+    <input type="text" asp-for="UserName" placeholder="Ваш ник" /><br />
+    <span asp-validation-for="UserName"></span><br />
+
+    <input type="password" asp-for="Password" placeholder="Пароль" />
+    <input type="checkbox" name="show-pass" value="Показать пароль" /><br />
+    <span asp-validation-for="Password"></span><br />
+
+    <input asp-for="ConfirmPassword" type="password"placeholder="Повторите пароль" />
+    <input type="checkbox" name="show-pass-confirm" value="Показать пароль" /><br />
+    <span asp-validation-for="ConfirmPassword"></span><br />
+
     <input class="btn btn-outline-success" type="submit" id="btnreg" value="Зарегистрироваться"/><br />
     </form>
     <p>Уже есть аккаунт?</p> <a class="btn btn-outline-success" href="/Auth/Login/">Войдите</a>
     </div>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/reg-script.js"></script>
+<script src="~/js/reg-script.js" asp-append-version="true"></script>

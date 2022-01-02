@@ -1,4 +1,6 @@
-﻿namespace ChatApp.Models
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace ChatApp.Models
 {
     public class BaseViewModel
     {

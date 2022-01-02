@@ -6,18 +6,21 @@
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="navbar-brand"><a id="main" href="/">Овощечат</a></div>
+        <div class="navbar-brand"><a id="main" href="/Home/Index">Овощечат</a></div>
         <div class="nav-item"><a id="gc" href="/Home/Chat">Глобальный чат</a></div>
         <div class="nav-item"><a id="rooms" href="/Room/RoomIndex?type=connect">Комнаты</a></div>
     </nav>
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-    <script src="~/js/pinger.js"></script>
+    <script src="~/js/pinger.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
     <div>
         @RenderBody()
     </div>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>

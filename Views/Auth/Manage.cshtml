@@ -1,0 +1,21 @@
+﻿@model LoginViewModel
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+<div id="div-main">
+    <h1>@(Model.Message??"Смените никнейм")</h1>
+<form asp-antiforgery="true" method="post" action="/Auth/Change">
+
+    <input type="text" id="UserName" name="UserName" placeholder="Введите новый ник" />
+    <input type="password" id="Password" name="Password" placeholder="Подтверждение пароля" />
+    <input type="submit" id="submitBtn" value="Сменить никнейм" />
+</form>
+</div>
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/change-script.js" asp-append-version="true"></script>
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

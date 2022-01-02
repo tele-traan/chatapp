@@ -1,4 +1,4 @@
-﻿@model string
+﻿@model LoginViewModel
 @{
     Layout = null;
 }
@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="~/css/site.css" />
 
 <div id="div-main">
-<form method="post" action="/Auth/Login/">
-<h1>@(Model==null ? "Войдите" : Model)</h1>
+<form asp-antiforgery="true" method="post" action="/Auth/Login/">
+<h1>@(Model.Message??"Войдите")</h1>
 <input type="text" id="UserName" name="UserName" placeholder="Логин"/><br />
 <input type="password" id="Password" name="Password" placeholder="Пароль" /><br />
 <input class="btn btn-outline-success" type="submit" value="Войти" />
@@ -16,4 +16,8 @@
 </div>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/log-script.js"></script>
+<script src="~/js/log-script.js" asp-append-version="true"></script>
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

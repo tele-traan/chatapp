@@ -1,35 +1,51 @@
 ﻿using ChatApp.DB;
 using ChatApp.Models;
+
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 using System.Linq;
+
 
 namespace ChatApp.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
 
-        private readonly DBContent _dbContent;
-        public HomeController(DBContent content)
+        private readonly DBContent _dbContext;
+        public HomeController(DBContent context)
         {
-            _dbContent = content;
+            _dbContext = context;
         }
         public IActionResult Index(string message)
         {
-            int users = _dbContent.GlobalChatUsers.Count();
-            int rusers = _dbContent.RoomUsers.Count();
-            var model = new BaseViewModel { Message = message ?? 
-                $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек" };
+            var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            if (user.OnlineNow)
+            {
+                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Пользователь уже в сети" });
+            }
+            int users = _dbContext.GlobalChatUsers.Count();
+            int rusers = _dbContext.RoomUsers.Count();
+            var model = new BaseViewModel { 
+                Message = message ?? $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек", 
+                UserName = User.Identity.Name};
             return View(model);
         }
         public IActionResult Chat()
         {
-            ISession session = HttpContext.Session;
-            string userName = session.GetString("UserName");
-            bool condition = userName != null
-                && _dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName) != null;
-            if (!condition) return RedirectToAction(actionName:"Login", controllerName:"Auth");
-            return View();
+            var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            if(user.GlobalChatUser!=null)
+            {
+                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Пользователь уже в сети" });
+            }
+            var users = _dbContext.GlobalChatUsers.ToList();
+            var obj = new ChatViewModel { Users = users };
+           return View(obj);
         }
     }
 }

@@ -1,17 +1,18 @@
 ﻿@model RoomViewModel
 
-<h1>@(Model.Message==null ? "Приватные комнаты" : Model.Message)</h1>
+<h1>@(Model.Message==null ? "Чат-комнаты" : Model.Message)</h1>
 @if(Model.Type=="create"){
     @using (Html.BeginForm("Create", "Room", FormMethod.Post))
     {
         @Html.LabelFor(m=>m.RoomName, "Название комнаты:")
+        @Html.CheckBoxFor(m=>m.IsPasswordRequired);
         @Html.TextBoxFor(m=>m.RoomName)
         <input class="btn btn-outline-success" type="submit" value="Создать комнату" />
     } 
 }
 else
 {
-    @if (Model.Rooms.Count > 0)
+    @if (Model.Rooms.Count() > 0)
     {
 
             @foreach (var v in Model.Rooms)
@@ -32,7 +33,7 @@ else
     {
         <h2>
             На данный момент ещё ни одна комната не создана :( 
-                Вы можете <a style="color:lawngreen; text-decoration:underline;"href="/Room/RoomIndex?type=create">создать свою</a>
+                Вы можете <a class="btn btn-outline-success" href="/Room/RoomIndex?type=create">создать свою</a>
         </h2>
     }
 }

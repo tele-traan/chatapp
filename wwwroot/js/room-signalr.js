@@ -28,6 +28,7 @@ connection.on("MemberJoined", memberName => {
 
     let p = document.createElement("p");
     p.setAttribute("id", `${memberName}`);
+    p.textContent = `Пользователь ${memberName}`;
     document.getElementById("users").appendChild(p);
 });
 
@@ -37,6 +38,9 @@ connection.on("MemberLeft", memberName => {
     p.innerText = `Пользователь ${memberName} покинул комнату`;
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(p, firstElem);
+
+    let elem = document.getElementById(`${memberName}`);
+    elem.parentNode.removeChild(elem);
 });
 
 document.getElementById("btnsendmsg").addEventListener("click", e => {
