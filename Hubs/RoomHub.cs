@@ -27,7 +27,6 @@ namespace ChatApp.Hubs
 
             string roomName = user.RoomUser.Room.Name;
             var room = dbContent.Rooms.Include(r => r.Users).FirstOrDefault(r => r.Name == roomName);
-            await Clients.All.SendAsync("NewMessage", $"{user.RoomUser.ConnectionId}, {Context.ConnectionId}");
 
             bool condition = !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(roomName);
             await base.OnConnectedAsync();

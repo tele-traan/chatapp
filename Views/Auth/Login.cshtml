@@ -9,7 +9,9 @@
 <form asp-antiforgery="true" method="post" action="/Auth/Login/">
 <h1>@(Model.Message??"Войдите")</h1>
 <input type="text" id="UserName" name="UserName" placeholder="Логин"/><br />
+<span asp-validation-for="UserName"></span><br />
 <input type="password" id="Password" name="Password" placeholder="Пароль" /><br />
+<span asp-validation-for="Password"></span><br />
 <input class="btn btn-outline-success" type="submit" value="Войти" />
 </form>
 <p>Ещё нет аккаунта?</p> <a class="btn btn-outline-success" href="/Auth/Register/">Зарегистрироваться</a>

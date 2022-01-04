@@ -1,21 +1,22 @@
-﻿@model LoginViewModel
-@{
-    Layout = null;
-}
-<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-<link rel="stylesheet" href="~/css/site.css" />
+﻿<script src="~/js/manage-script.js" asp-append-version="true"></script>
 <div id="div-main">
-    <h1>@(Model.Message??"Смените никнейм")</h1>
-<form asp-antiforgery="true" method="post" action="/Auth/Change">
+    <h1>Управление аккаунтом</h1>
 
-    <input type="text" id="UserName" name="UserName" placeholder="Введите новый ник" />
-    <input type="password" id="Password" name="Password" placeholder="Подтверждение пароля" />
-    <input type="submit" id="submitBtn" value="Сменить никнейм" />
-</form>
+        <hr />
+        <h2>Сменить ник</h2>
+        <input type="text" name="userName" placeholder="Введите новый ник" /><br />
+        <span id="changeusername-validation-username"></span><br />
+        <input type="password" name="password" placeholder="Подтверждение пароля" /><br />
+        <span id="changeusername-validation-password"></span><br />
+        <button id="changeusername-button">Сменить никнейм</button>
+        <span id="changeusername-summarize"></span>
+        <hr />
+    
+        <h2>Сменить пароль</h2>
+        <input type="password" name="oldPassword" placeholder="Старый пароль" /><br />
+        <span id="changepassword-validation-oldpassword"></span><br />
+        <input type="password" name="newPassword" placeholder="Новый пароль" /><br />
+        <span id="changepassword-validation-newpassword"></span><br />
+        <button id="changepassword-button">Сменить пароль</button>
+        <span id="changepassword-summarize"></span>
 </div>
-<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/change-script.js" asp-append-version="true"></script>
-
-<script src="~/lib/jquery/dist/jquery.js"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

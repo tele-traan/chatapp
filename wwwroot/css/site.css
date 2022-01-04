@@ -1,4 +1,6 @@
-﻿
+﻿nav {
+    background-color: #339933;
+}
 #div-main {
     text-align: center;
     width: 100%;
@@ -7,17 +9,42 @@
 #users::before{
     content:'';
 }
-
-#main, #gc, #rooms{
-    color: lavender;
-    transition: color 250ms;
+#manage{
+    vertical-align:central;
+    text-align:center;
+    height: 100rem;
+    white-space:nowrap;
+    overflow:clip;
+    display:inline-block;
 }
-#gc, #rooms{
-    margin-left: 0.325rem;
+#manage p{
+    margin:0px;
+    display:inline-block;
+    color:white;
+    font-weight:600;
+    width:min-content;
 }
-#main:hover, #gc:hover, #rooms:hover{
-    text-decoration:none;
-    color:darkgray;
+.nav-custom a{
+    height:100%;
+    margin:0px;
+}
+.nav-custom {
+    margin-top:10%;
+    margin-left: 10%;
+    padding:2px;
+    white-space: nowrap;
+    margin-left: 10%;
+    border: 1px solid white;
+    background-color: #339933;
+    border-radius: 4px;
+    color: white;
+    transition: ease-in-out 172ms;
+}
+.nav-custom:hover {
+    border: 1px solid white;
+    color: #339933;
+    text-decoration: none;
+    background-color: white;
 }
 #users {
     width:30%;

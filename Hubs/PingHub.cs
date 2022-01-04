@@ -25,8 +25,11 @@ namespace ChatApp.Hubs
         public async override Task OnDisconnectedAsync(Exception exception)
         {
             this.GetServices(out HttpContext httpContext, out DBContent dbContent);
-            string userName = httpContext.User.Identity.Name;
-            var user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == userName);
+            var user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == httpContext.User.Identity.Name);
+            //while (user == null)
+            //{
+            //    user = dbContent.RegularUsers.FirstOrDefault(u => u.UserName == httpContext.User.Identity.Name);
+            //}
             user.OnlineNow = false;
             user.ConnectionId = null;
             dbContent.SaveChanges();

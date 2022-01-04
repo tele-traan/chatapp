@@ -15,28 +15,25 @@ namespace ChatApp.Controllers
     public class HomeController : Controller
     {
 
-        private readonly DBContent _dbContext;
-        public HomeController(DBContent context)
+        private readonly ChatDbContext _dbContext;
+        public HomeController(ChatDbContext context)
         {
             _dbContext = context;
         }
-        public IActionResult Index(string message)
+        public IActionResult Index(string msg)
         {
+            ViewData["Username"] = User.Identity.Name;
             var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            if (user.OnlineNow)
-            {
-                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Пользователь уже в сети" });
-            }
             int users = _dbContext.GlobalChatUsers.Count();
             int rusers = _dbContext.RoomUsers.Count();
             var model = new BaseViewModel { 
-                Message = message ?? $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек", 
+                Message = msg ?? $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек", 
                 UserName = User.Identity.Name};
             return View(model);
         }
         public IActionResult Chat()
         {
+            ViewData["Username"] = User.Identity.Name;
             var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
             if(user.GlobalChatUser!=null)
             {

@@ -2,7 +2,7 @@
 using ChatApp.Models;
 namespace ChatApp.DB
 {
-    public class DBContent : DbContext
+    public class ChatDbContext : DbContext
     {   
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -32,7 +32,7 @@ namespace ChatApp.DB
                 .HasForeignKey(ru => ru.RoomId);
             
         }
-        public DBContent(DbContextOptions<DBContent> options) : base(options)
+        public ChatDbContext(DbContextOptions<ChatDbContext> options) : base(options)
         {
             Database.EnsureCreated();
         }

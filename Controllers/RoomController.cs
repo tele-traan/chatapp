@@ -25,18 +25,20 @@ namespace ChatApp.Controllers
         }
         public IActionResult RoomIndex(string type, string msg)
         {
+            ViewData["Username"] = User.Identity.Name;
             var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
             if (user.RoomUser!=null)
             {
                 HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Пользователь уже в сети" });
             }
-            var roomList = _dbContext.Rooms.Include(r => r.Users).ToList();
+            var roomList = _dbContext.Rooms.Include(r => r.Users).AsNoTracking().ToList();
             return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
         }
         public async Task<IActionResult> Create(RoomViewModel model)
         {
             string userName = User.Identity.Name;
+            ViewData["Username"] = userName;
             var room = await _dbContext.Rooms.FirstOrDefaultAsync(m => m.Name == model.RoomName);
             if (room == null)
             {
@@ -66,12 +68,13 @@ namespace ChatApp.Controllers
             else
             {
                 return RedirectToAction
-                    (actionName: "RoomIndex", controllerName: "Room", new { msg = "Комната с таким названием уже существует", type="Create" });
+                    (actionName: "RoomIndex", controllerName: "Room", new { msg = "Комната с таким названием уже существует", type="create" });
             }
         }
         public IActionResult Connect(RoomViewModel model)
         {
             string userName = User.Identity.Name;
+            ViewData["Username"] = userName;
             var room = _dbContext.Rooms.Include(r=>r.Users).FirstOrDefault(r => r.Name == model.RoomName);
             var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == userName);
             if (room != null)
