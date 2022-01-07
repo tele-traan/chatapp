@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ChatApp.Hubs;
 using ChatApp.DB;
+using ChatApp.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -17,18 +18,25 @@ namespace ChatApp
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
             services.AddSignalR();
-            services.AddTransient<ChatHub>();
+
             services.AddDistributedMemoryCache();
             services.AddSession();
+
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<DBContent>(options => options.UseSqlServer(connection));
+            services.AddDbContext<ChatDbContext>(options => options.UseSqlServer(connection));
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddTransient<IUsersRepository, UsersRepository>();
+            services.AddTransient<IGCUsersRepository, GCUsersRepository>();
+            services.AddTransient<IRoomsRepository, RoomsRepository>();
+            services.AddTransient<IRoomUsersRepository, RoomUsersRepository>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -52,8 +60,7 @@ namespace ChatApp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Register}/{message?}");
-                endpoints.MapHub<PingHub>("/pinghub");
+                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Register}/{msg?}");
                 endpoints.MapHub<AuthHub>("/authhub");
                 endpoints.MapHub<ChatHub>("/chathub");
                 endpoints.MapHub<RoomHub>("/roomhub");

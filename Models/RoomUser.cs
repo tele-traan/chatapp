@@ -11,7 +11,7 @@ namespace ChatApp.Models
         public int RoomId { get; set; }
         public virtual Room Room { get; set; }
 
-        public int RegularUserId { get; set; }
-        public virtual RegularUser RegularUser { get; set; }
+        public int UserId { get; set; }
+        public virtual User User { get; set; }
     }
 }

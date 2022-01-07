@@ -1,0 +1,39 @@
+﻿@model ManageViewModel
+<div id="div-main">
+    <h1>@(Model.Message??"Личный кабинет")</h1>
+
+        <hr />
+        <h2>Сменить ник</h2>
+            <form asp-antiforgery="true" action="/Manage/ChangeUsername" method="post">
+
+                <input type="hidden" asp-for="IsNameChanging" value="true" />
+
+                <input type="text" asp-for="UserName" placeholder="Введите новый ник" /><br />
+                <span asp-validation-for="UserName"></span><br />
+
+                <input type="password" asp-for="Password" placeholder="Подтверждение пароля" /><br />
+                <span asp-validation-for="Password"></span><br />
+
+                <input type="submit" value="Сменить никнейм" />
+
+            </form>
+        <hr />
+    
+        <h2>Сменить пароль</h2>
+            <form asp-antiforgery="true" action="/Manage/ChangePassword" method="post">
+
+                <input type="hidden" asp-for="IsNameChanging" value="false" />
+
+                <input type="password" asp-for="OldPassword" placeholder="Старый пароль" /><br />
+                <span asp-validation-for="OldPassword"></span><br />
+
+                <input type="password" asp-for="NewPassword" placeholder="Новый пароль" /><br />
+                <span asp-validation-for="NewPassword"></span><br />
+
+                <input type="submit" value="Сменить никнейм">
+
+            </form>
+        <hr />
+</div>
+
+<script src="~/js/manage-script.js" asp-append-version="true"></script>

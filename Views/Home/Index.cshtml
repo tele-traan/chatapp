@@ -1,14 +1,12 @@
 ﻿@model BaseViewModel;
 
 <h1>@Model.Message</h1>
-<h2>Войти в глобальный чат:</h2>
-@using(Html.BeginForm("Chat", "Home", FormMethod.Post))
-{
-    <input class="btn btn-outline-success" type="submit" value="Войти в чат">
-}
+<h2 style="display:inline-block;">Войти в глобальный чат:</h2>
+<a class="btn btn-outline-success" href="/Home/Chat">Войти</a>
+
 <hr />
 <h2 style="display:inline-block;">Создать свою комнату</h2> 
-@Html.ActionLink("Создать", "RoomIndex", "Room", new{type="create"}, new{@class="btn btn-outline-success"})
+<a class="btn btn-outline-success" href="/Room/RoomIndex?type=create">Создать</a>
 <hr />
 <h2 style="display:inline-block;">Войти в существующую комнату</h2>
-@Html.ActionLink("Войти", "RoomIndex", "Room", new{type="connect"}, new{@class="btn btn-outline-success"})
+<a class="btn btn-outline-success" href="/Room/RoomIndex?type=connect">Войти</a>

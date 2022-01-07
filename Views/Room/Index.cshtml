@@ -10,8 +10,18 @@
 
     @foreach(var v in Model.UsersInRoom)
         {
-            <p id="@v.UserName">@v.UserName</p>
+            if (Model.RoomAdmins.Contains(v.User))
+            {
+                <p style="color:red;" id="@v.UserName">Админ @v.UserName</p>
+            }
+            else
+            {
+                <p id="@v.UserName">@v.UserName</p>
+
+            }
         }
+    </div>
 </div>
-</div>
-<script src="~/js/room-signalr.js" asp-append-version="true"></script>
+<script src="~/js/room-signalr.js" asp-append-version="true"></script> 
+
+<!--сделать завтра - полное управление комнатой, нормальное изменение пароля-->

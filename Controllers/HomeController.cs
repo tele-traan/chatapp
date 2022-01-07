@@ -1,5 +1,6 @@
 ﻿using ChatApp.DB;
 using ChatApp.Models;
+using ChatApp.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -15,32 +16,34 @@ namespace ChatApp.Controllers
     public class HomeController : Controller
     {
 
-        private readonly ChatDbContext _dbContext;
-        public HomeController(ChatDbContext context)
+        private readonly IUsersRepository _usersRepo;
+        private readonly IGCUsersRepository _gcUsersRepo;
+        private readonly IRoomUsersRepository _roomUsersRepo;
+        public HomeController(IUsersRepository repo, IGCUsersRepository gcRepo, IRoomUsersRepository roomRepo)
         {
-            _dbContext = context;
+            _usersRepo = repo;
+            _gcUsersRepo = gcRepo;
+            _roomUsersRepo = roomRepo;
         }
         public IActionResult Index(string msg)
         {
             ViewData["Username"] = User.Identity.Name;
-            var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            int users = _dbContext.GlobalChatUsers.Count();
-            int rusers = _dbContext.RoomUsers.Count();
+            int gcUsersCount = _gcUsersRepo.GetAllUsers().Count();
+            int roomUsersCount = _roomUsersRepo.GetAllUsers().Count();
             var model = new BaseViewModel { 
-                Message = msg ?? $"На данный момент в основном чате {users} человек, в комнатах {rusers} человек", 
-                UserName = User.Identity.Name};
+                Message = msg ?? $"На данный момент в основном чате {gcUsersCount} человек, в комнатах {roomUsersCount} человек"};
             return View(model);
         }
         public IActionResult Chat()
         {
-            ViewData["Username"] = User.Identity.Name;
-            var user = _dbContext.RegularUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            string userName = User.Identity.Name;
+            ViewData["Username"] = userName;
+            var user = _usersRepo.GetUser(userName);
             if(user.GlobalChatUser!=null)
             {
-                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Пользователь уже в сети" });
+                return RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Пользователь уже в сети" });
             }
-            var users = _dbContext.GlobalChatUsers.ToList();
+            var users = _gcUsersRepo.GetAllUsers().ToList();
             var obj = new ChatViewModel { Users = users };
            return View(obj);
         }

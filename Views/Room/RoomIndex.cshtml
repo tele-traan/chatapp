@@ -5,7 +5,7 @@
     @using (Html.BeginForm("Create", "Room", FormMethod.Post))
     {
         @Html.LabelFor(m=>m.RoomName, "Название комнаты:")
-        @Html.CheckBoxFor(m=>m.IsPasswordRequired);
+        @Html.CheckBoxFor(m=>m.IsPrivate);
         @Html.TextBoxFor(m=>m.RoomName)
         <input class="btn btn-outline-success" type="submit" value="Создать комнату" />
     } 
