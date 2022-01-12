@@ -1,5 +1,5 @@
 ﻿nav {
-    background-color: #339933;
+    background-color: #28a745;
 }
 #div-main {
     text-align: center;
@@ -29,20 +29,20 @@
     margin:0px;
 }
 .nav-custom {
-    margin-top:10%;
+    margin-top: 10%;
     margin-left: 10%;
-    padding:2px;
+    padding: 2px;
     white-space: nowrap;
     margin-left: 10%;
     border: 1px solid white;
-    background-color: #339933;
+    background-color: #28a745;
     border-radius: 4px;
     color: white;
     transition: ease-in-out 172ms;
 }
 .nav-custom:hover {
     border: 1px solid white;
-    color: #339933;
+    color: #28a745;
     text-decoration: none;
     background-color: white;
 }

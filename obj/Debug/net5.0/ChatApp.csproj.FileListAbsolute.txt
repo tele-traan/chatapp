@@ -68,7 +68,8 @@ C:\Users\timur\source\repos\ChatApp\ChatApp\bin\Debug\net5.0\runtimes\win\lib\ne
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Home\Chat.cshtml.g.cs
 C:\Users\timur\source\repos\ChatApp\ChatApp\bin\Debug\net5.0\Microsoft.AspNet.SignalR.Client.dll
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Room\Index.cshtml.g.cs
-C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Room\RoomIndex.cshtml.g.cs
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Auth\Login.cshtml.g.cs
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Auth\Register.cshtml.g.cs
 C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Manage\Index.cshtml.g.cs
+C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Manage\ManageRoom.cshtml.g.cs
+C:\Users\timur\source\repos\ChatApp\ChatApp\obj\Debug\net5.0\Razor\Views\Room\Room.cshtml.g.cs

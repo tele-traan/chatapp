@@ -1,0 +1,24 @@
+﻿@model RoomViewModel
+
+@(Model.Message=="" ? $"Комната {Model.RoomName}" : Model.Message)
+<div id="div-main">
+<input type="text" id="msg" />
+<button id="btnsendmsg">Отправить</button>
+<br />
+<div id="messages"></div>
+    <div id="users">
+
+    @foreach(var v in Model.UsersInRoom)
+        {
+            if (Model.RoomAdmins.FirstOrDefault(a=>a.Equals(v.User))!=null)
+            {
+                <p style="color:red;" id="@v.UserName">Админ @v.UserName</p>
+            }
+            else
+            {
+                <p id="@v.UserName">@v.UserName</p>
+            }
+        }
+    </div>
+</div>
+<script src="~/js/room-signalr.js" asp-append-version="true"></script> 

@@ -18,7 +18,12 @@ namespace ChatApp.Repositories
 
         public IEnumerable<GlobalChatUser> GetAllUsers() => _context.GlobalChatUsers.AsNoTracking();
 
-        public GlobalChatUser GetUser(int id) => _context.GlobalChatUsers.FirstOrDefault(u => u.Id == id);
+        public GlobalChatUser GetUser(int id) => _context.GlobalChatUsers.FirstOrDefault(u => u.GlobalChatUserId == id);
         public GlobalChatUser GetUser(string userName) => _context.GlobalChatUsers.FirstOrDefault(u => u.UserName == userName);
+        public void RemoveUser(GlobalChatUser user)
+        {
+            _context.GlobalChatUsers.Remove(user);
+            _context.SaveChanges();
+        }
     }
 }

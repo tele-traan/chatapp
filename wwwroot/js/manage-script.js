@@ -1,5 +1,4 @@
 ﻿var connection = new signalR.HubConnectionBuilder().withUrl("/authhub").build();
-connection.start();
 
 let changeNameInput = $('input[name="username"]');
 let nameInputValidation = $('#changeusername-validation-username');
@@ -73,3 +72,5 @@ changePassBtn.on("click", function (e) {
     changePassOld.val("");
     changePassNew.val("");
 });
+
+connection.start();

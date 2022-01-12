@@ -14,7 +14,7 @@
                 <input type="password" asp-for="Password" placeholder="Подтверждение пароля" /><br />
                 <span asp-validation-for="Password"></span><br />
 
-                <input type="submit" value="Сменить никнейм" />
+                <input class="btn btn-outline-success" type="submit" value="Сменить никнейм" />
 
             </form>
         <hr />
@@ -30,10 +30,25 @@
                 <input type="password" asp-for="NewPassword" placeholder="Новый пароль" /><br />
                 <span asp-validation-for="NewPassword"></span><br />
 
-                <input type="submit" value="Сменить никнейм">
+                <input class="btn btn-outline-success" type="submit" value="Сменить никнейм">
 
             </form>
         <hr />
+
+    <h2>Управление комнатами</h2>
+    <hr />
+    @foreach (var r in Model.ManagedRooms)
+    {
+        <a class="btn btn-outline-success" asp-action="ManageRoom" asp-controller="Manage" asp-route-roomId="@r.RoomId">Комната @r.Name</a>
+                <hr />
+
+    }
+    @if (!Model.ManagedRooms.Any())
+    {
+        <h3>Вы не управляете ни одной комнатой. Вы можете <a href="/Room/Index?type=create">создать свою комнату</a></h3>
+    }
+    <a href="/Manage/Logout" style="display:inline-block;" class="btn btn-outline-danger">Выйти из аккаунта</a>
+    <a href="/Manage/DeleteAccount" style="display:inline-block;" class="btn btn-outline-danger">Удалить аккаунт</a>
 </div>
 
 <script src="~/js/manage-script.js" asp-append-version="true"></script>

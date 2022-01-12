@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using ChatApp.DB;
 using ChatApp.Models;
@@ -71,7 +74,7 @@ namespace ChatApp.Util
             List<string> list = new();
             var roomsRepo = controller.GetService<IRoomsRepository>();
             var room = roomsRepo.GetRoom(roomName);
-            list = room.Users.Select(u => u.ConnectionId).ToList();
+            list = room.RoomUsers.Select(u => u.ConnectionId).ToList();
             return list;
         }
 
@@ -113,5 +116,24 @@ namespace ChatApp.Util
                 ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             return httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
         }
+
+        public static bool CompareHashes(this object obj, string password, byte[] salt, string hashedPassword)
+        {
+            password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password:password,
+                salt:salt,
+                prf:KeyDerivationPrf.HMACSHA256,
+                iterationCount:100000,
+                numBytesRequested: 256/8));
+            return password == hashedPassword;
+        }
+        public static bool ContainsUser(this Room room, string userName)
+            => room.RoomUsers.FirstOrDefault(u => u.UserName == userName) != null;
+
+        public static bool ContainsAdmin(this Room room, string userName)
+            => room.Admins.FirstOrDefault(u => u.UserName == userName) != null;
+
+        public static bool ContainsBanned(this Room room, string userName)
+            => room.BannedUsers.FirstOrDefault(u => u.UserName == userName) != null;
     }
 }

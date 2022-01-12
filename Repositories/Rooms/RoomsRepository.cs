@@ -18,8 +18,18 @@ namespace ChatApp.Repositories
 
         public IEnumerable<Room> GetAllRooms() => _context.Rooms.AsNoTracking();
 
-        public Room GetRoom(string roomName) => _context.Rooms.FirstOrDefault(r => r.Name == roomName);
-        
+        public Room GetRoom(string roomName) => _context.Rooms
+            .Include(r=>r.RoomUsers)
+            .Include(r=>r.Admins)
+            .Include(r=>r.BannedUsers)
+            .Include(r => r.BanInfos)
+            .FirstOrDefault(r => r.Name == roomName);
+        public Room GetRoom(int roomId) => _context.Rooms
+            .Include(r => r.RoomUsers)
+            .Include(r => r.Admins)
+            .Include(r => r.BannedUsers)
+            .Include(r=>r.BanInfos)
+            .FirstOrDefault(r => r.RoomId == roomId);
         public bool AddRoom(Room room)
         {
             if (_context.Rooms.FirstOrDefault(r => r.Equals(room)) != null) return false;

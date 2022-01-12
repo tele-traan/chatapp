@@ -1,27 +1,45 @@
 ﻿@model RoomViewModel
-
-@(Model.Message=="" ? $"Комната {Model.RoomName}" : Model.Message)
 <div id="div-main">
-<input type="text" id="msg" />
-<button id="btnsendmsg">Отправить</button>
-<br />
-<div id="messages"></div>
-<div id="users">
+<h1>@(Model.Message ?? "Чат-комнаты")</h1>
+@if(Model.Type=="create"){
+        <form method="post" action="/Room/Create" name="createroomform">
 
-    @foreach(var v in Model.UsersInRoom)
+            <input type="text" asp-for="RoomName" placeholder="Название комнаты" /><br>
+            <span asp-validation-for="RoomName"></span><br>
+
+            <label for="IsPrivate">Приватная комната</label>
+            <input type="checkbox" asp-for="IsPrivate"><br>
+
+            <input type="text" asp-for="RoomPassword" placeholder="Пароль комнаты"/><br>
+            <span asp-validation-for="RoomPassword"></span><br>
+
+            <input class="btn btn-outline-success" type="submit" value="Создать комнату" />
+        </form>
+}
+else
+{
+    @if (Model.Rooms.Count() > 0)
+    {
+        @foreach (var v in Model.Rooms)
         {
-            if (Model.RoomAdmins.Contains(v.User))
+            @using (Html.BeginForm("Connect", "Room", FormMethod.Post))
             {
-                <p style="color:red;" id="@v.UserName">Админ @v.UserName</p>
-            }
-            else
-            {
-                <p id="@v.UserName">@v.UserName</p>
-
+                <p>Комната @v.Name</p><br />
+                <p>Участников: @v.RoomUsers.Count</p><br />
+                <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
+                <hr />
+                <input type="hidden" name="RoomName" id="RoomName" value="@v.Name"/>
             }
         }
-    </div>
+    }
+    else
+    {
+        <h2>
+            На данный момент ещё ни одна комната не создана :( 
+                Вы можете <a class="btn btn-outline-success" href="/Room/Index?type=create">создать свою</a>
+        </h2>
+    }
+}
 </div>
-<script src="~/js/room-signalr.js" asp-append-version="true"></script> 
 
-<!--сделать завтра - полное управление комнатой, нормальное изменение пароля-->
+<script src="~/js/roomindex-script.js" asp-append-version="true"></script>

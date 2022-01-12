@@ -37,6 +37,7 @@ namespace ChatApp
             services.AddTransient<IGCUsersRepository, GCUsersRepository>();
             services.AddTransient<IRoomsRepository, RoomsRepository>();
             services.AddTransient<IRoomUsersRepository, RoomUsersRepository>();
+            services.AddTransient<IBanInfoRepository, BanInfoRepository>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -64,6 +65,7 @@ namespace ChatApp
                 endpoints.MapHub<AuthHub>("/authhub");
                 endpoints.MapHub<ChatHub>("/chathub");
                 endpoints.MapHub<RoomHub>("/roomhub");
+                endpoints.MapHub<ManageRoomHub>("/manageroomhub");
             });
         }
     }

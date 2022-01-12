@@ -15,7 +15,7 @@ namespace ChatApp.Repositories
         {
             _context = context;
         }
-        public IEnumerable<User> GetAllUsers() => _context.Users.AsNoTracking();
+        public IEnumerable<User> GetAllUsers() => _context.Users.IgnoreAutoIncludes().AsNoTracking();
         public bool AddUser(User user)
         {
             if (_context.Users.FirstOrDefault(u => u.Equals(user)) != null) return false;
@@ -32,7 +32,7 @@ namespace ChatApp.Repositories
         }
         public User GetUser(string userName) => _context.Users.FirstOrDefault(u => u.UserName == userName);
         public User GetUser(string userName, string password)
-            => _context.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
+            => _context.Users.FirstOrDefault(u => u.UserName == userName && u.PasswordHash == password);
         public void UpdateUser(User user)
         {
             _context.Users.Update(user);

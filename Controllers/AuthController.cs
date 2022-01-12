@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
+﻿using System;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using ChatApp.Util;
 using ChatApp.Models;
@@ -46,9 +49,8 @@ namespace ChatApp.Controllers
                 var user = _usersRepo.GetUser(model.UserName);
                 if (user == null)
                 {
-                    _usersRepo.AddUser(new User 
-                    { UserName = model.UserName, 
-                        Password = model.Password,
+                    _usersRepo.AddUser(new User(model.Password)
+                    {   UserName = model.UserName, 
                         GlobalChatUser=null,
                         RoomUser=null});
                     await this.Authenticate(model.UserName);
@@ -57,7 +59,6 @@ namespace ChatApp.Controllers
                 else return RedirectToAction(actionName: "Register", new {msg="Этот ник уже занят"});
             }
             else return RedirectToAction(actionName:"Register", new {msg="Ошибка. Проверьте, заполнили ли вы все поля формы"});
-            
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -65,13 +66,17 @@ namespace ChatApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _usersRepo.GetUser(model.UserName, model.Password);
+                var user = _usersRepo.GetUser(model.UserName);
                 if (user != null)
                 {
-                    await this.Authenticate(model.UserName);
-                    return RedirectToAction(actionName: "Index", controllerName: "Home");
+                    bool authenticated = this.CompareHashes(model.Password, user.Salt, user.PasswordHash);
+                    if (authenticated)
+                    {
+                        await this.Authenticate(model.UserName);
+                        return RedirectToAction(actionName: "Index", controllerName: "Home");
+                    }
                 }
-                else return RedirectToAction(actionName: "Login", new { msg = "Неверный логин или пароль" });
+                return RedirectToAction(actionName: "Login", new { msg = "Неверный логин или пароль" });
             }
             else return RedirectToAction("Login", new { msg = "Ошибка. Проверьте, заполнили ли вы все поля формы" });
         }

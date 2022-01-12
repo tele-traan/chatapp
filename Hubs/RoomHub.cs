@@ -20,8 +20,6 @@ namespace ChatApp.Hubs
         public async override Task OnConnectedAsync()
         {
             var usersRepo = this.GetService<IUsersRepository>();
-            var roomsRepo = this.GetService<IRoomsRepository>();
-
             string userName = Context.GetHttpContext().User.Identity.Name;
             var user = usersRepo.GetUser(userName);
 
@@ -33,28 +31,28 @@ namespace ChatApp.Hubs
             {
                 user.RoomUser.ConnectionId = Context.ConnectionId;
                 usersRepo.UpdateUser(user);
-                await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberJoined", userName);
+                await Clients.Clients(this.GetIds(roomName))
+                    .SendAsync("MemberJoined", userName, user.RoomUser.IsAdmin);
             }
             else
             {
-                await Clients.Caller.SendAsync("ErrorLogging", "Ошибка при входе в комнату. Попробуйте ещё раз");
+                await Clients.Caller.SendAsync("ErrorLogging",
+                    "Ошибка при входе в комнату. Попробуйте ещё раз");
             }
         }
 
         public async override Task OnDisconnectedAsync(Exception exception)
         {
-            var usersRepo = this.GetService<IUsersRepository>();
-
+            var roomUsersRepo = this.GetService<IRoomUsersRepository>();
             string userName = Context.GetHttpContext().User.Identity.Name;
-            var user = usersRepo.GetUser(userName);
-
-            string roomName = user.RoomUser.Room.Name;
-            bool condition = !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(roomName);
-            if (condition)
+            var user = roomUsersRepo.GetUser(userName);
+            if (user is not null) 
             {
-                user.RoomUser = null;
-                usersRepo.UpdateUser(user);
-                await Clients.Clients(this.GetIds(roomName)).SendAsync("MemberLeft", userName);
+                string roomName = user.Room.Name;
+
+                roomUsersRepo.RemoveUser(user);
+                await Clients.Clients(this.GetIds(roomName))
+                    .SendAsync("MemberLeft", userName, user.IsAdmin);
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -63,25 +61,14 @@ namespace ChatApp.Hubs
             var usersRepo = this.GetService<IUsersRepository>();
             string userName = Context.GetHttpContext().User.Identity.Name;
             var user = usersRepo.GetUser(userName);
+            if(user.RoomUser is null)
+            {
+                Context.Abort();
+                Context.GetHttpContext().Abort();
+            }
             string roomName = user.RoomUser.Room.Name;
             string time = DateTime.Now.ToShortTimeString();
             await Clients.Clients(this.GetIds(roomName)).SendAsync("NewMessage", time, userName, message.Trim());
-        }
-        public async Task RoomDeleted()
-        {
-            var roomUsersRepo = this.GetService<IRoomUsersRepository>();
-            var roomsRepo = this.GetService<IRoomsRepository>();
-
-            string userName = Context.GetHttpContext().User.Identity.Name;
-            var roomUser = roomUsersRepo.GetUser(userName);
-            var room = roomUser.Room;
-
-            bool condition = room.Admins.FirstOrDefault(u => u.Equals(roomUser.User))!=null;
-            if (condition)
-            {
-                await Clients.Clients(this.GetIds(room.Name)).SendAsync("RoomDeleted");
-                roomsRepo.RemoveRoom(room);
-            }
         }
     }
 }

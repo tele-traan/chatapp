@@ -1,5 +1,5 @@
 ﻿var connection = new signalR.HubConnectionBuilder().withUrl("/authhub").build();
-connection.start();
+
 let inp = $('#UserName');
 inp.on('change', function () {
 
@@ -31,3 +31,5 @@ $('input[name="show-pass-confirm"]').on("click", function () {
         $('input[name="ConfirmPassword"').attr('type', 'text');
     } else $('input[name=ConfirmPassword').attr('type', 'password');
 });
+
+connection.start();
