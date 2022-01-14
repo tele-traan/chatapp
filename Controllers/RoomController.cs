@@ -120,13 +120,14 @@ namespace ChatApp.Controllers
                     int isUnbannedAlready = DateTime.Compare(DateTime.Now, until);
                     if (isUnbannedAlready < 0)
                     {
-                        string msg = $"Вы забанены в комнате {room.Name} по причине \"{banInfo.Reason}\" до {until.ToShortDateString()} {until.ToShortTimeString()} администратором {banInfo.PunisherName}";
+                        string msg = $"Админ {banInfo.PunisherName} " +
+                            $"забанил вас в комнате {room.Name} " +
+                            $"по причине:{banInfo.Reason} " +
+                            $"до {until.ToShortDateString()} {until.ToShortTimeString()}";
                         return this.RedirectToPostAction(actionName: "Index",
                             controllerName: "Room",
                             new() { { "msg", msg } });
-                        /*return RedirectToAction(actionName: "Index",
-                            controllerName: "Room",
-                            new { msg = $"Вы забанены в комнате {room.Name} по причине {banInfo.Reason} до {until.ToShortDateString()} {until.ToShortTimeString()}" });*/
+                      
                     }
                     else
                     {
@@ -137,7 +138,10 @@ namespace ChatApp.Controllers
                 }
                 if (room.IsPrivate && model.RoomPassword is not null)
                 {
-
+                    bool isAuthenticated = this.GetHash(model.RoomPassword, room.Salt) == room.PasswordHash;
+                    if (!isAuthenticated) return this.RedirectToPostAction(actionName: "Index",
+                        controllerName: "Room",
+                        new() { { "msg", "Неверный пароль от комнаты" } });
                 }
                 else if(room.IsPrivate) return this.RedirectToPostAction(actionName: "Index", 
                     controllerName: "Room", 

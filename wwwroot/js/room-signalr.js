@@ -29,14 +29,14 @@ connection.on("MemberJoined", (memberName,isAdmin) => {
     p.setAttribute("id", `${memberName}`);
     if (isAdmin) {
         p.textContent = `Админ ${memberName}`;
-        p.style.color = "red";
+        p.style.color = "crimson";
     } else p.textContent = `Пользователь ${memberName}`;
     document.getElementById("users").appendChild(p);
 });
 
 connection.on("MemberLeft", (memberName, isAdmin) => {
     let p = document.createElement("p");
-    p.style.backgroundColor = "red";
+    p.style.backgroundColor = "crimson";
     if (isAdmin) {
         p.innerText = `Админ ${memberName} покинул комнату`;
     } else p.innerText = `Пользователь ${memberName} покинул комнату`;
@@ -47,9 +47,9 @@ connection.on("MemberLeft", (memberName, isAdmin) => {
     elem.parentNode.removeChild(elem);
 });
 
-connection.on("UserKicked", (admin, reason) => {
+connection.on("UserKicked", admin => {
     connection.stop();
-    alert(`Администратор ${admin} кикнул вас из комнаты по причине: ${reason}`);
+    alert(`Администратор ${admin} кикнул вас из комнаты`);
     setTimeout(() => window.location.href = "/Home/Index", 5000);
 });
 
@@ -60,11 +60,11 @@ connection.on("UserBanned", (admin, reason, time) => {
 });
 
 connection.on("UserOpped", creator => {
-    alert(`Создатель комнаты ${creator} назначил вас администратором.`);
+    alert(`Создатель комнаты ${creator} назначил вас администратором`);
 });
 
 connection.on("UserDeopped", creator => {
-    alert(`Создатель комнаты ${creator} отнял у вас права администратора.`);
+    alert(`Создатель комнаты ${creator} отнял у вас права администратора`);
 });
 
 document.getElementById("btnsendmsg").addEventListener("click", e => {

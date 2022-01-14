@@ -75,7 +75,6 @@ namespace ChatApp.Controllers
             return this.RedirectToPostAction(actionName: "Index",
                 controllerName: "Manage",
                 new() { { "msg", msg } });
-            //return RedirectToAction(actionName: "Index", controllerName: "Manage", new { msg });
         }
 
         [HttpPost]
@@ -107,7 +106,6 @@ namespace ChatApp.Controllers
             return this.RedirectToPostAction(actionName: "Index",
                 controllerName: "Manage",
                 new() { {"msg", msg } });
-            //return RedirectToAction(actionName: "Index", controllerName: "Manage", new { msg });
         }
         public IActionResult Logout()
         {
@@ -127,12 +125,10 @@ namespace ChatApp.Controllers
                 return this.RedirectToPostAction(actionName: "RegisterIndex",
                     controllerName: "Auth",
                     new() { { "msg", "Аккаунт успешно удалён" } });
-                //return RedirectToAction(actionName: "Register", controllerName: "Auth", new { msg = "Аккаунт успешно удалён." });
             }
             else return this.RedirectToPostAction(actionName: "LoginIndex",
                 controllerName: "Auth",
                 new() { {"msg", "Ошибка. Войдите снова" } });
-                //return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Ошибка. Войдите снова" });
         }
     }
 }

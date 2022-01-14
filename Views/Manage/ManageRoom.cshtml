@@ -5,9 +5,9 @@
     <hr />
     <div id="usersinroom">
     <h2>Пользователи в комнате</h2>
+    <hr />
     @foreach (var v in Model.RoomUsers)
     {   
-        <hr />
         <form name="@v.UserName">
         <h3 >Пользователь @v.UserName</h3>
         <input type="button" name="Kick" class="btn btn-outline-danger" value="Кикнуть из комнаты" /><br>
@@ -27,8 +27,8 @@
         <br>
         <p id="summary-@v.UserName"></p>
         </form>
+        <hr />
     }
-    <hr />
     </div>
     <div id="bannedusers">
     <h2>Забаненные пользователи</h2>

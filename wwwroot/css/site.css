@@ -1,6 +1,9 @@
 ﻿nav {
     background-color: #28a745;
 }
+p{
+    margin:0;
+}
 #div-main {
     text-align: center;
     width: 100%;

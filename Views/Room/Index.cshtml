@@ -23,12 +23,11 @@ else
         @foreach (var v in Model.Rooms)
         {
             <form method="post" action="/Room/Connect">
-            <p>Комната @v.Name</p><br />
-            <p>Участников: @v.RoomUsers.Count</p><br />
+            <p>Комната <b>@v.Name</b></p>
+            <p>Участников: @v.RoomUsers.Count</p>
             @if(v.IsPrivate)
             {
-                <label for="RoomPassword">Это приватная комната. Введите пароль, чтобы войти</label>
-                <br>
+                <label style="color:lightcoral;" for="RoomPassword">Это приватная комната. Введите пароль, чтобы войти</label>
                 <input type="text" name="RoomPassword" id="RoomPassword" placeholder="Пароль" />
             }
             <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
