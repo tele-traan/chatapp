@@ -1,20 +1,17 @@
 ﻿using System;
+using System.Text;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
-using ChatApp.DB;
 using ChatApp.Models;
 using ChatApp.Repositories;
 
@@ -22,32 +19,10 @@ namespace ChatApp.Util
 {
     public static class Extensions
     {
-        /// <summary>
-        /// Gets the required service implementation from HTTP context.
-        /// </summary>
-        /// <typeparam name="T">Required service type.</typeparam>
-        /// <param name="hub">Hub providing its HubCallerContext property.</param>
-        /// <returns></returns>
         public static T GetService<T>(this Hub hub)
             => hub.Context.GetHttpContext().RequestServices.GetRequiredService<T>();
-
-
-        /// <summary>
-        /// Gets the required service implementation from HTTP context.
-        /// </summary>
-        /// <typeparam name="T">Required service type.</typeparam>
-        /// <param name="controller">Controller providing its HttpContext property.</param>
-        /// <returns>The T service implementation in HTTP context request services.</returns>
         public static T GetService<T>(this Controller controller) => 
             controller.HttpContext.RequestServices.GetRequiredService<T>();
-
-  
-        /// <summary>
-        /// Gets the list containing connection IDs of users who should get the notifications from hub invocations.
-        /// </summary>
-        /// <param name="hub">The hub that provides its HubCallerContext.</param>
-        /// <param name="roomName">Name of the specific room which contains all the users who should get the notifications.</param>
-        /// <returns>List of users connection IDs.</returns>
         public static List<string> GetIds(this Hub hub, string roomName)
         {
             List<string> list = new();
@@ -61,14 +36,6 @@ namespace ChatApp.Util
                 .ToList();
             return list;
         }
-
-
-        /// <summary>
-        /// Gets the list containing connection IDs of users who should get the notifications from hub invocations.
-        /// </summary>
-        /// <param name="controller">The controller that provides its HttpContext.</param>
-        /// <param name="roomName">Name of the specific room which contains all the users who should get the notifications.</param>
-        /// <returns>List of users connection IDs.</returns>
         public static List<string> GetIds(this Controller controller, string roomName)
         {
             List<string> list = new();
@@ -77,14 +44,6 @@ namespace ChatApp.Util
             list = room.RoomUsers.Select(u => u.ConnectionId).ToList();
             return list;
         }
-
-
-        /// <summary>
-        /// Authenticates a user using cookie authentication scheme within a SignalR hub.
-        /// </summary>
-        /// <param name="hub">Hub providing its HubCallerContext property.</param>
-        /// <param name="userName">Authenticating user's name.</param>
-        /// <returns>Object that represents the current task.</returns>
         public static Task Authenticate(this Hub hub, string userName)
         {
             var httpContext = hub.Context.GetHttpContext();
@@ -97,14 +56,6 @@ namespace ChatApp.Util
             return httpContext.
                 SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
-
-        
-        /// <summary>
-        /// Authenticates a user using cookie authentication scheme within a controller.
-        /// </summary>
-        /// <param name="controller">Controller providing its HttpContext property.</param>
-        /// <param name="userName">Authenticating user's name.</param>
-        /// <returns>Object that represents the current task.</returns>
         public static Task Authenticate(this Controller controller, string userName)
         {
             var httpContext = controller.HttpContext;
@@ -116,24 +67,44 @@ namespace ChatApp.Util
                 ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             return httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
         }
-
-        public static bool CompareHashes(this object obj, string password, byte[] salt, string hashedPassword)
+        public static ContentResult RedirectToPostAction(this Controller controller,
+            string actionName,
+            string controllerName, Dictionary<string, string> parameters)
         {
-            password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            StringBuilder sb = new();
+            sb.Append("<html><head><meta charset=\"utf-8\"></head>");
+            sb.Append("<body>");
+            sb.Append("<h1>Переадресация...</h1>");
+            sb.Append($"<form name=\"f\" action=\"/{controllerName}/{actionName}\" method=\"post\">");
+
+            foreach(var p in parameters)
+                sb.Append($"<input type=\"hidden\" name=\"{p.Key}\" value=\"{p.Value}\" />");
+
+            sb.Append("</form>");
+            sb.Append("<script>");
+            sb.Append("document.forms['f'].submit();");
+            sb.Append("</script>");
+            sb.Append("</body></html>");
+            return new ContentResult
+            {
+                ContentType = "text/html",
+                StatusCode = 200,
+                Content = sb.ToString()
+            };
+        }
+        public static string GetHash(this object obj, string password, byte[] salt)
+            => Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password:password,
                 salt:salt,
-                prf:KeyDerivationPrf.HMACSHA256,
+                prf: KeyDerivationPrf.HMACSHA256,
                 iterationCount:100000,
-                numBytesRequested: 256/8));
-            return password == hashedPassword;
-        }
+                numBytesRequested:256/8
+                ));
         public static bool ContainsUser(this Room room, string userName)
-            => room.RoomUsers.FirstOrDefault(u => u.UserName == userName) != null;
-
+            => room.RoomUsers.FirstOrDefault(u => u.UserName == userName) is not null;
         public static bool ContainsAdmin(this Room room, string userName)
-            => room.Admins.FirstOrDefault(u => u.UserName == userName) != null;
-
+            => room.Admins.FirstOrDefault(u => u.UserName == userName) is not null;
         public static bool ContainsBanned(this Room room, string userName)
-            => room.BannedUsers.FirstOrDefault(u => u.UserName == userName) != null;
+            => room.BannedUsers.FirstOrDefault(u => u.UserName == userName) is not null;
     }
 }

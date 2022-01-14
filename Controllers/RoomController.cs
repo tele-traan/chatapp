@@ -29,15 +29,23 @@ namespace ChatApp.Controllers
             _roomsRepo = roomsRepo;
             _bansRepo = bansRepo;
         }
-        public IActionResult Index(string type, string msg)
+        [HttpGet]
+        [HttpPost]
+        public IActionResult Index([FromForm][FromQuery] string type, [FromForm]string msg)
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
-            var user = _usersRepo.GetUser(userName); 
-            if(user is null) 
-                return RedirectToAction(actionName:"Register", controllerName: "Auth", new { msg = "Ошибка. Войдите снова"});
+            var user = _usersRepo.GetUser(userName);
+            if (user is null)
+                return this.RedirectToPostAction(actionName: "Register",
+                    controllerName: "Auth",
+                    new() { {"msg", "Ошибка. Войдите снова" } });
+            //return RedirectToAction(actionName:"Register", controllerName: "Auth", new { msg = "Ошибка. Войдите снова"});
             if (user.RoomUser is not null)
-                return RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Этот аккаунт уже находится в комнате. Кикнуть?" });
+                return this.RedirectToPostAction(actionName: "Index",
+                    controllerName: "Home",
+                    new() { { "msg", "С одного аккаунта можно находиться только в одной комнате" } });
+                //return RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Этот аккаунт уже находится в комнате. Кикнуть?" });
             
             var roomList = _roomsRepo.GetAllRooms().ToList();
             return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
@@ -49,15 +57,23 @@ namespace ChatApp.Controllers
                 string userName = User.Identity.Name;
                 ViewData["Username"] = userName;
                 var room = _roomsRepo.GetRoom(model.RoomName);
-                if (room == null)
+                if (room is null)
                 {
-                    if(model.IsPrivate&&model.RoomPassword is null) 
-                        return RedirectToAction(actionName: "Index", 
-                            controllerName: "Room", 
-                            new {type="create", msg = "Вы не ввели пароль для комнаты" });
-                    
+                    if (model.IsPrivate && model.RoomPassword is null)
+                        return this.RedirectToPostAction(actionName: "Index",
+                            controllerName: "Room",
+                            new() { { "type", "create" }, { "msg", "Вы не ввели пароль от комнаты" } });
+                    /* return RedirectToAction(actionName: "Index",
+                         controllerName: "Room",
+                         new { type = "create", msg = "Вы не ввели пароль для комнаты" });*/
+
                     var user = _usersRepo.GetUser(userName);
-                    room = new(model.RoomPassword) { Name = model.RoomName, Creator = user };
+                    room = new() { Name = model.RoomName, Creator = user };
+                    if (model.IsPrivate)
+                    {
+                        room.IsPrivate = true;
+                        room.PasswordHash = model.RoomPassword;
+                    }
                     _roomsRepo.AddRoom(room);
 
                     user.RoomUser = new() { Room = room, UserName = userName, IsAdmin = true };
@@ -78,12 +94,16 @@ namespace ChatApp.Controllers
                     };
                     return View(viewName: "Room", obj);
                 }
-                else return RedirectToAction
-                       (actionName: "Index", controllerName: "Room", new { msg = "Комната с таким названием уже существует", type = "create" });
+                else return this.RedirectToPostAction(actionName: "Index",
+                    controllerName: "Room",
+                    new() { { "type", "create" }, { "msg", "Комнаты с таким названием не существует" } });
+                //return RedirectToAction(actionName: "Index", controllerName: "Room", new { msg = "Комната с таким названием уже существует", type = "create" });
 
             }
-            else return RedirectToAction
-                  (actionName: "Index", controllerName: "Room", new { msg = "Ошибка. Проверьте, все ли поля формы вы заполнили" });
+            else return this.RedirectToPostAction(actionName: "Index",
+                controllerName: "Room",
+                new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
+                //return RedirectToAction (actionName: "Index", controllerName: "Room", new { msg = "Ошибка. Проверьте, все ли поля формы вы заполнили" });
         }
         public IActionResult Connect(RoomViewModel model)
         {
@@ -91,7 +111,7 @@ namespace ChatApp.Controllers
             ViewData["Username"] = userName;
             var room = _roomsRepo.GetRoom(model.RoomName);
             var user = _usersRepo.GetUser(userName);
-            if (room != null)
+            if (room is not null)
             {
                 if (room.ContainsBanned(userName))
                 {
@@ -100,9 +120,13 @@ namespace ChatApp.Controllers
                     int isUnbannedAlready = DateTime.Compare(DateTime.Now, until);
                     if (isUnbannedAlready < 0)
                     {
-                        return RedirectToAction(actionName: "Index",
+                        string msg = $"Вы забанены в комнате {room.Name} по причине \"{banInfo.Reason}\" до {until.ToShortDateString()} {until.ToShortTimeString()} администратором {banInfo.PunisherName}";
+                        return this.RedirectToPostAction(actionName: "Index",
                             controllerName: "Room",
-                            new { msg = $"Вы забанены в комнате {room.Name} по причине {banInfo.Reason} до {until.ToShortDateString()} {until.ToShortTimeString()}" });
+                            new() { { "msg", msg } });
+                        /*return RedirectToAction(actionName: "Index",
+                            controllerName: "Room",
+                            new { msg = $"Вы забанены в комнате {room.Name} по причине {banInfo.Reason} до {until.ToShortDateString()} {until.ToShortTimeString()}" });*/
                     }
                     else
                     {
@@ -111,6 +135,13 @@ namespace ChatApp.Controllers
                         _roomsRepo.UpdateRoom(room);
                     }
                 }
+                if (room.IsPrivate && model.RoomPassword is not null)
+                {
+
+                }
+                else if(room.IsPrivate) return this.RedirectToPostAction(actionName: "Index", 
+                    controllerName: "Room", 
+                    new(){ { "msg", "Вы не ввели пароль" } });
                 bool isAdmin = room.ContainsAdmin(userName);
                 user.RoomUser = new() { Room = room, UserName = userName, IsAdmin = isAdmin };
                 _usersRepo.UpdateUser(user);
@@ -125,10 +156,9 @@ namespace ChatApp.Controllers
             }
             else
             {
-                return RedirectToAction
-                    (actionName: "Index",
+                return this.RedirectToPostAction(actionName: "Index", 
                     controllerName: "Room", 
-                    new { msg = "Комнаты с таким названием не существует" });
+                    new(){ { "msg", "Комнаты с таким названием не существует" } });
             }
         }
     }

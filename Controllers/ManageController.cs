@@ -56,19 +56,26 @@ namespace ChatApp.Controllers
             if (ModelState.IsValid)
             {
                 string prevUserName = User.Identity.Name;
-                var user = _usersRepo.GetUser(prevUserName, model.Password);
+                var user = _usersRepo.GetUser(prevUserName);
                 if (user != null)
                 {
-                    user.UserName = model.UserName;
-                    _usersRepo.UpdateUser(user);
-                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    await this.Authenticate(model.UserName);
-                    msg = "Имя успешно изменено";
+                    if (this.GetHash(model.Password, user.Salt) == user.PasswordHash)
+                    {
+                        user.UserName = model.UserName;
+                        _usersRepo.UpdateUser(user);
+                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        await this.Authenticate(model.UserName);
+                        msg = "Имя успешно изменено";
+                    }
+                    else msg = "Ошибка. Проверьте правильность введённых данных";
                 }
                 else msg = "Ошибка. Проверьте правильность введённых данных";
             }
             else msg = "Ошибка. Проверьте, все ли поля формы вы заполнили";
-            return RedirectToAction(actionName: "Index", controllerName: "Manage", new { msg });
+            return this.RedirectToPostAction(actionName: "Index",
+                controllerName: "Manage",
+                new() { { "msg", msg } });
+            //return RedirectToAction(actionName: "Index", controllerName: "Manage", new { msg });
         }
 
         [HttpPost]
@@ -81,10 +88,9 @@ namespace ChatApp.Controllers
             if (ModelState.IsValid && model.NewPassword != model.OldPassword)
             {
                 var user = _usersRepo.GetUser(userName);
-                bool isDataCorrect = this.CompareHashes(model.OldPassword, user.Salt, user.PasswordHash);
-                if (isDataCorrect)
+                bool isAuthenticated = this.GetHash(model.OldPassword, user.Salt) == user.PasswordHash;
+                if (isAuthenticated)
                 {
-
                     user.PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                         password: model.NewPassword,
                         salt: user.Salt,
@@ -98,12 +104,15 @@ namespace ChatApp.Controllers
                 else msg = "Ошибка. Проверьте правильность введённых данных";
             }
             else msg = "Ошибка. Проверьте, все ли поля формы вы заполнили";
-            return RedirectToAction(actionName: "Index", controllerName: "Manage", new { msg });
+            return this.RedirectToPostAction(actionName: "Index",
+                controllerName: "Manage",
+                new() { {"msg", msg } });
+            //return RedirectToAction(actionName: "Index", controllerName: "Manage", new { msg });
         }
         public IActionResult Logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(actionName: "Login", controllerName: "Auth");
+            return RedirectToAction(actionName: "LoginIndex", controllerName: "Auth");
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -115,9 +124,15 @@ namespace ChatApp.Controllers
             if (user != null)
             {
                 _usersRepo.RemoveUser(user);
-                return RedirectToAction(actionName: "Register", controllerName: "Auth", new { msg = "Аккаунт успешно удалён." });
+                return this.RedirectToPostAction(actionName: "RegisterIndex",
+                    controllerName: "Auth",
+                    new() { { "msg", "Аккаунт успешно удалён" } });
+                //return RedirectToAction(actionName: "Register", controllerName: "Auth", new { msg = "Аккаунт успешно удалён." });
             }
-            else return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Ошибка. Войдите снова" });
+            else return this.RedirectToPostAction(actionName: "LoginIndex",
+                controllerName: "Auth",
+                new() { {"msg", "Ошибка. Войдите снова" } });
+                //return RedirectToAction(actionName: "Login", controllerName: "Auth", new { msg = "Ошибка. Войдите снова" });
         }
     }
 }

@@ -42,7 +42,7 @@ namespace ChatApp
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = new PathString("/Auth/Register");
+                    options.LoginPath = new PathString("/Auth/RegisterIndex");
                     options.AccessDeniedPath = new PathString("/Home/Index");
                 });
         }
@@ -61,7 +61,7 @@ namespace ChatApp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Register}/{msg?}");
+                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=RegisterIndex}");
                 endpoints.MapHub<AuthHub>("/authhub");
                 endpoints.MapHub<ChatHub>("/chathub");
                 endpoints.MapHub<RoomHub>("/roomhub");

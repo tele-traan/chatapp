@@ -10,12 +10,12 @@
         <hr />
         <form name="@v.UserName">
         <h3 >Пользователь @v.UserName</h3>
-        <input type="button" name="Kick" class="btn btn-outline-danger" value="Кикнуть из комнаты" />
+        <input type="button" name="Kick" class="btn btn-outline-danger" value="Кикнуть из комнаты" /><br>
         <label style="display:inline-block;" for="days">Забанить на</label>
         <input style="display:inline-block;"type="number" min="1" max="365" name="days" value="1"/>
         <label for="days">дней</label>
-        <input type="text" name="reason" placeholder="Причина" />
-        <input type="button" name="Ban" class="btn btn-outline-danger" value="Забанить" />
+        <input type="text" name="reason" placeholder="Причина" /><br>
+        <input type="button" name="Ban" class="btn btn-outline-danger" value="Забанить" /><br>
         @if (!v.IsAdmin)
         {
             <input type="button" style="display:inline-block;" name="Op" class="btn btn-outline-success" value="Выдать права администратора" />
@@ -24,6 +24,7 @@
         {
             <input type="button" style="display:inline-block;" name="Deop" class="btn btn-outline-danger" value="Забрать права администратора" />
         }
+        <br>
         <p id="summary-@v.UserName"></p>
         </form>
     }
@@ -34,9 +35,10 @@
     @foreach (var v in Model.BannedUsers)
     {
         <form name="@v.UserName">
-            <h3 style="display:inline-block;">Пользователь @v.UserName</h3>
+            <h3 style="display:inline-block;">Пользователь @v.UserName</h3><br>
             <input type="button" name="Unban" class="btn btn-outline-success" value="Разбанить" />
         </form>
+        <hr />
     }
     </div>
 </div>

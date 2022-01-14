@@ -8,9 +8,20 @@ namespace ChatApp.Models
     public class User
     {
         public int UserId { get; set; }
-
         public string UserName { get; set; }
-        public string PasswordHash { get; set; }
+        private string _passwordHash;
+        public string PasswordHash {
+            get => _passwordHash;
+            set
+            {
+                _passwordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: value,
+                    salt: Salt,
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: 100000,
+                    numBytesRequested: 256 / 8));
+            }
+        }
         public byte[] Salt { get; set; }
 
         public RoomUser RoomUser { get; set; }
@@ -21,23 +32,16 @@ namespace ChatApp.Models
         public List<Room> RoomsCreated { get; set; }
         public List<BanInfo> BanInfos { get; set; }
 
-        public User(string password)
+        public User()
         {
             ManagedRooms = new();
             RoomsWhereIsBanned = new();
             RoomsCreated = new();
             BanInfos = new();
+
             Salt = new byte[128 / 8];
-            using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                rngCsp.GetNonZeroBytes(Salt);
-            }
-            PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: password,
-                salt:Salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount:100000,
-                numBytesRequested: 256/8));
+            using var rngCsp = new RNGCryptoServiceProvider();
+            rngCsp.GetNonZeroBytes(Salt);
         }
         public override bool Equals(object obj)
         {

@@ -18,7 +18,9 @@ namespace ChatApp.Controllers
         {
             _usersRepo = repo;
         }
-        public IActionResult Register(string msg)
+        [HttpGet]
+        [HttpPost]
+        public IActionResult RegisterIndex([FromForm]string msg)
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
@@ -26,7 +28,9 @@ namespace ChatApp.Controllers
             if (user != null) return RedirectToAction(actionName: "Index", controllerName: "Home");
             return View(new RegisterViewModel { Message = msg });
         }
-        public IActionResult Login(string msg)
+        [HttpGet]
+        [HttpPost]
+        public IActionResult LoginIndex([FromForm]string msg)
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
@@ -34,7 +38,9 @@ namespace ChatApp.Controllers
             if (user!=null) return RedirectToAction(actionName: "Index", controllerName: "Home");
             return View(new LoginViewModel { Message = msg });
         }
-        public IActionResult Manage(string msg)
+        [HttpGet]
+        [HttpPost]
+        public IActionResult Manage([FromForm]string msg)
         {
             ViewData["Username"] = User.Identity.Name;
             return View(new LoginViewModel { Message = msg });
@@ -49,16 +55,25 @@ namespace ChatApp.Controllers
                 var user = _usersRepo.GetUser(model.UserName);
                 if (user == null)
                 {
-                    _usersRepo.AddUser(new User(model.Password)
-                    {   UserName = model.UserName, 
-                        GlobalChatUser=null,
-                        RoomUser=null});
+                    _usersRepo.AddUser(new User
+                    {
+                        PasswordHash = model.Password,
+                        UserName = model.UserName,
+                        GlobalChatUser = null,
+                        RoomUser = null
+                    });
                     await this.Authenticate(model.UserName);
                     return RedirectToAction(actionName: "Index", controllerName: "Home");
                 }
-                else return RedirectToAction(actionName: "Register", new {msg="Этот ник уже занят"});
+                else return this.RedirectToPostAction(actionName: "RegisterIndex",
+                    controllerName: "Auth",
+                    new() { { "msg", "Этот ник уже занят" } });
+                //return RedirectToAction(actionName: "Register", new {msg="Этот ник уже занят"});
             }
-            else return RedirectToAction(actionName:"Register", new {msg="Ошибка. Проверьте, заполнили ли вы все поля формы"});
+            else return this.RedirectToPostAction(actionName: "Register",
+                controllerName: "Auth",
+                new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } }); 
+                //return RedirectToAction(actionName:"Register", new {msg="Ошибка. Проверьте, заполнили ли вы все поля формы"});
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -69,16 +84,21 @@ namespace ChatApp.Controllers
                 var user = _usersRepo.GetUser(model.UserName);
                 if (user != null)
                 {
-                    bool authenticated = this.CompareHashes(model.Password, user.Salt, user.PasswordHash);
+                    bool authenticated = this.GetHash(model.Password, user.Salt) == user.PasswordHash;
                     if (authenticated)
                     {
                         await this.Authenticate(model.UserName);
                         return RedirectToAction(actionName: "Index", controllerName: "Home");
                     }
                 }
-                return RedirectToAction(actionName: "Login", new { msg = "Неверный логин или пароль" });
+                return this.RedirectToPostAction(actionName: "LoginIndex",
+                    controllerName: "Auth",
+                    new() { { "msg", "Неверный логин или пароль" } });
             }
-            else return RedirectToAction("Login", new { msg = "Ошибка. Проверьте, заполнили ли вы все поля формы" });
+            else return this.RedirectToPostAction(actionName: "LoginIndex",
+                controllerName: "Auth",
+                new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
+                //return RedirectToAction("LoginIndex", new { msg = "Ошибка. Проверьте, заполнили ли вы все поля формы" });
         }
     }
 }

@@ -10,7 +10,23 @@ namespace ChatApp.Models
         public int RoomId { get; set; }
         public string Name { get; set; }
         public bool IsPrivate { get; set; }
-        public string PasswordHash { get; set; }
+        private string _passwordHash;
+        public string PasswordHash 
+        { 
+            get => _passwordHash;
+            set
+            {
+                if (value is not null)
+                {
+                    _passwordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: value,
+                        salt: Salt,
+                        prf: KeyDerivationPrf.HMACSHA256,
+                        iterationCount: 100000,
+                        numBytesRequested: 256 / 8));
+                }
+            }
+        }
         public byte[] Salt { get; set; }
         public List<RoomUser> RoomUsers { get; set; }
         public List<User> BannedUsers { get; set; }
@@ -18,29 +34,17 @@ namespace ChatApp.Models
         public List<User> Admins { get; set; }
         public int CreatorId { get; set; }
         public User Creator { get; set; }
-#nullable enable
-        public Room(string? password)
+        public Room()
         {
             RoomUsers = new();
             Admins = new();
             BanInfos = new();
             BannedUsers = new();
-            if (password is not null)
-            {
-                Salt = new byte[128 / 8];
-                using (var rngCsp = new RNGCryptoServiceProvider())
-                {
-                    rngCsp.GetNonZeroBytes(Salt);
-                }
-                PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: password,
-                    salt: Salt,
-                    prf: KeyDerivationPrf.HMACSHA256,
-                    iterationCount:100000,
-                    numBytesRequested: 256/8));
-            }
+
+            Salt = new byte[128 / 8];
+            using var rngCsp = new RNGCryptoServiceProvider() ;
+            rngCsp.GetNonZeroBytes(Salt);
         }
-#nullable disable
         public override bool Equals(object obj)
         {
             if (obj is not Room) return false;

@@ -1,4 +1,5 @@
-﻿var connection = new signalR.HubConnectionBuilder().withUrl("/manageroomhub").build();
+﻿$('body').fadeOut(1);
+var connection = new signalR.HubConnectionBuilder().withUrl("/manageroomhub").build();
 
 let forms = document.forms;
 
@@ -90,8 +91,8 @@ connection.on("UnbanResult", (response, username) => {
         form.parentNode.removeChild(form);
         alert(`Пользователь ${username} разбанен`);
     } else {
-        alert(`Произошла ошибка при попытке разбанить пользователя ${username}. Попробуйте ещё раз`);
+        alert(`Ошибка. Попробуйте ещё раз`);
     }
 });
 
-connection.start().then(()=>alert("Balls"));
+connection.start().then(()=>$('body').fadeIn());

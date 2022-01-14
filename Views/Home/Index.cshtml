@@ -6,7 +6,15 @@
 
 <hr />
 <h2 style="display:inline-block;">Создать свою комнату</h2> 
-<a class="btn btn-outline-success" href="/Room/Index?type=create">Создать</a>
+<form action="/Room/Index" method="post">
+<input type="submit" class="btn btn-outline-success" value="Создать"/>
+<input type="hidden" name="type" value="create" />
+</form>
 <hr />
 <h2 style="display:inline-block;">Войти в существующую комнату</h2>
-<a class="btn btn-outline-success" href="/Room/Index?type=connect">Войти</a>
+<form action="/Room/Index" method="post">
+<input type="submit" class="btn btn-outline-success" value="Войти"/>
+<input type="hidden" name="type" value="connect" />
+</form>
+
+<!--Завтра доделать все переходы с ссылками и проверить, этот комментарий УДАЛИТЬ-->

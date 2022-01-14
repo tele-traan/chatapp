@@ -44,11 +44,17 @@
 
     }
     @if (!Model.ManagedRooms.Any())
-    {
-        <h3>Вы не управляете ни одной комнатой. Вы можете <a href="/Room/Index?type=create">создать свою комнату</a></h3>
+    {   <form action="/Room/Index">
+        <h3>Вы не управляете ни одной комнатой. Вы можете <input type="submit" class="btn btn-outline-success" value="создать свою комнату" /></h3>
+        <input type="hidden" name="type" value="create" />
+    </form>
     }
-    <a href="/Manage/Logout" style="display:inline-block;" class="btn btn-outline-danger">Выйти из аккаунта</a>
-    <a href="/Manage/DeleteAccount" style="display:inline-block;" class="btn btn-outline-danger">Удалить аккаунт</a>
+    <hr />
+    <a href="/Manage/Logout" class="btn btn-outline-danger" style="display:inline-block;">Выйти из аккаунта</a>
+    <form asp-antiforgery="true" name="delaccform" action="/Manage/DeleteAccount" method="post" style="display:inline-block;">
+    <input name="delaccsubmit"  type="submit" class="btn btn-outline-danger" value="Удалить аккаунт" /><br />
+    <span id="delaccconfirmspan"></span>
+    </form>
 </div>
 
 <script src="~/js/manage-script.js" asp-append-version="true"></script>

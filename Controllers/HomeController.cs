@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 using System.Linq;
-
+using ChatApp.Util;
 
 namespace ChatApp.Controllers
 {
@@ -25,7 +25,9 @@ namespace ChatApp.Controllers
             _gcUsersRepo = gcRepo;
             _roomUsersRepo = roomRepo;
         }
-        public IActionResult Index(string msg)
+        [HttpGet]
+        [HttpPost]
+        public IActionResult Index([FromForm]string msg)
         {
             ViewData["Username"] = User.Identity.Name;
             int gcUsersCount = _gcUsersRepo.GetAllUsers().Count();
@@ -41,7 +43,10 @@ namespace ChatApp.Controllers
             var user = _usersRepo.GetUser(userName);
             if(user.GlobalChatUser!=null)
             {
-                return RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Пользователь уже в сети" });
+                return this.RedirectToPostAction(actionName: "Index",
+                    controllerName: "Home",
+                    new() { { "msg", "Пользователь уже в сети" } });
+                //RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Пользователь уже в сети" });
             }
             var users = _gcUsersRepo.GetAllUsers().ToList();
             var obj = new ChatViewModel { Users = users };

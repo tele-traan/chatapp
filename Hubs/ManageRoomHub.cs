@@ -33,11 +33,6 @@ namespace ChatApp.Hubs
             }
             else Context.GetHttpContext().Abort();
         }
-        public override async Task OnDisconnectedAsync(Exception exception)
-        {
-            Context.GetHttpContext().Session.SetString("currentlymanagedroom", "");
-            await base.OnDisconnectedAsync(exception);
-        }
         public async Task Op(string userName)
         {
             var httpContext = Context.GetHttpContext();
@@ -75,7 +70,9 @@ namespace ChatApp.Hubs
 
             string adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
-            if (room.ContainsAdmin(adminName) && room.ContainsUser(userName) && room.ContainsAdmin(userName))
+            if (room.Creator.Equals(usersRepo.GetUser(adminName))
+                && room.ContainsUser(userName)
+                && room.ContainsAdmin(userName))
             {
                 user.RoomUser.IsAdmin = false;
                 bool isRemoved = user.ManagedRooms.Remove(room);
@@ -90,7 +87,7 @@ namespace ChatApp.Hubs
             await Clients.Caller.SendAsync("OpResult", "failure", userName);
 
         }
-        public async Task Kick(string userName, string reason)
+        public async Task Kick(string userName)
         {
             var httpContext = Context.GetHttpContext();
             var roomHubContext = this.GetService<IHubContext<RoomHub>>();
@@ -106,8 +103,7 @@ namespace ChatApp.Hubs
             var user = usersRepo.GetUser(userName);
             if (room.ContainsAdmin(adminName) && room.ContainsUser(userName))
             {
-                if (string.IsNullOrEmpty(reason)) reason = "Без причины.";
-                await roomHubContext.Clients.Client(user.RoomUser.ConnectionId).SendAsync("UserKicked", adminName, reason);
+                await roomHubContext.Clients.Client(user.RoomUser.ConnectionId).SendAsync("UserKicked", adminName);
                 roomUsersRepo.RemoveUser(user.RoomUser);
                 await Clients.Caller.SendAsync("KickResult", "success", userName);
             }
@@ -115,8 +111,6 @@ namespace ChatApp.Hubs
         }
         public async Task Ban(string userName, string reason, int days)
         {
-            try
-            {
                 var httpContext = Context.GetHttpContext();
                 var roomHubContext = this.GetService<IHubContext<RoomHub>>();
 
@@ -153,10 +147,6 @@ namespace ChatApp.Hubs
                     await Clients.Caller.SendAsync("BanResult", "success", userName);
                 }
                 else await Clients.Caller.SendAsync("BanResult", "failure", "");
-            } catch (Exception e)
-            {
-                await Clients.Caller.SendAsync("BanResult", "success", e.Message);
-            }
         }
         public async Task Unban(string userName)
         {
@@ -165,23 +155,26 @@ namespace ChatApp.Hubs
 
             var usersRepo = this.GetService<IUsersRepository>();
             var roomsRepo = this.GetService<IRoomsRepository>();
+            var bansRepo = this.GetService<IBanInfoRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
             var room = roomsRepo.GetRoom(roomName);
 
             string adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
-            if (room.ContainsAdmin(adminName) && room.BannedUsers.FirstOrDefault(u=>u.Equals(user))is not null)
+
+            if (room is not null)
             {
-                bool isRemoved = room.BannedUsers.Remove(user);
-                if (isRemoved)
+                if (room.ContainsAdmin(adminName) && room.BannedUsers.FirstOrDefault(u => u.Equals(user)) is not null)
                 {
+                    var banInfo = user.BanInfos.FirstOrDefault(b => b.User.Equals(user));
+                    bansRepo.RemoveBanInfo(banInfo);
+                    room.BannedUsers.Remove(user);
                     roomsRepo.UpdateRoom(room);
                     await Clients.Caller.SendAsync("UnanResult", "success", userName);
                 }
-                else await Clients.Caller.SendAsync("UnbanResult", "success", "");
-            }
-            else await Clients.Caller.SendAsync("UnbanResult", "success", "");
+                else await Clients.Caller.SendAsync("UnbanResult", "failure", "");
+            } else await Clients.Caller.SendAsync("UnbanResult", "failure", "");
         }
     }
 }

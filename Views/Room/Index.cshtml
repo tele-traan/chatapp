@@ -22,22 +22,30 @@ else
     {
         @foreach (var v in Model.Rooms)
         {
-            @using (Html.BeginForm("Connect", "Room", FormMethod.Post))
+            <form method="post" action="/Room/Connect">
+            <p>Комната @v.Name</p><br />
+            <p>Участников: @v.RoomUsers.Count</p><br />
+            @if(v.IsPrivate)
             {
-                <p>Комната @v.Name</p><br />
-                <p>Участников: @v.RoomUsers.Count</p><br />
-                <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
-                <hr />
-                <input type="hidden" name="RoomName" id="RoomName" value="@v.Name"/>
+                <label for="RoomPassword">Это приватная комната. Введите пароль, чтобы войти</label>
+                <br>
+                <input type="text" name="RoomPassword" id="RoomPassword" placeholder="Пароль" />
             }
+            <input class="btn btn-outline-success" type="submit" value="Подключиться к комнате" />
+            <hr />
+            <input type="hidden" name="RoomName" id="RoomName" value="@v.Name"/>
+            </form>
         }
     }
     else
     {
+        <form action="/Room/Index">
         <h2>
             На данный момент ещё ни одна комната не создана :( 
-                Вы можете <a class="btn btn-outline-success" href="/Room/Index?type=create">создать свою</a>
+                Вы можете <input type="submit" class="btn btn-outline-success" value="создать свою" />
         </h2>
+        <input type="hidden" name="type" value="create" />
+        </form>
     }
 }
 </div>
