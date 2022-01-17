@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
 using ChatApp.Util;
+using ChatApp.Models;
 using ChatApp.Repositories;
 
 namespace ChatApp.Hubs
@@ -20,18 +22,102 @@ namespace ChatApp.Hubs
             var httpContext = Context.GetHttpContext();
 
             var roomsRepo = this.GetService<IRoomsRepository>();
-            var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = roomsRepo.GetRoom(roomName);
-            await Clients.All.SendAsync("KickResult", "success", $"room is null-${room is null}");
+            string roomName = httpContext.Session.GetString("currentlymanagedroom");
+            Room room = await roomsRepo.GetRoomAsync(roomName);
             if (room is not null)
             {
                 if (room.ContainsAdmin(httpContext.User.Identity.Name))
                 {
                     await base.OnConnectedAsync();
                 }
-                else Context.GetHttpContext().Abort();
+                else httpContext.Abort();
             }
-            else Context.GetHttpContext().Abort();
+            else httpContext.Abort();
+        }
+        public async Task MakeRoomPrivate(string roomPassword)
+        {
+            var httpContext = Context.GetHttpContext();
+
+            var roomsRepo = this.GetService<IRoomsRepository>();
+            string roomName = httpContext.Session.GetString("currentlymangedroom");
+            Room room = await roomsRepo.GetRoomAsync(roomName);
+            if (room.ContainsAdmin(httpContext.User.Identity.Name))
+            {
+                if (!string.IsNullOrEmpty(roomPassword))
+                {
+                    await Clients.Caller.SendAsync("MakePrivateResult", "failure");
+                    return;
+                }
+                room.IsPrivate = true;
+                room.PasswordHash = roomPassword;
+                roomsRepo.UpdateRoom(room);
+                await Clients.Caller.SendAsync("MakePrivateResult", "success");
+            }
+            else httpContext.Abort();
+        }
+        public async Task MakeRoomUnprivate()
+        {
+            var httpContext = Context.GetHttpContext();
+
+            var roomsRepo = this.GetService<IRoomsRepository>();
+            string roomName = httpContext.Session.GetString("currentlymangedroom");
+            Room room = await roomsRepo.GetRoomAsync(roomName);
+            if (room.ContainsAdmin(httpContext.User.Identity.Name))
+            {
+                room.IsPrivate = false;
+                roomsRepo.UpdateRoom(room);
+                await Clients.Caller.SendAsync("MakeUnprivateResult", "success");
+            }
+            else httpContext.Abort();
+        }
+
+        public async Task ChangeRoomName(string newName)
+        {
+            var httpContext = Context.GetHttpContext();
+
+            var roomsRepo = this.GetService<IRoomsRepository>();
+            var roomName = httpContext.Session.GetString("currentlymanagedroom");
+            var room = await roomsRepo.GetRoomAsync(roomName);
+
+            if (room.ContainsAdmin(httpContext.User.Identity.Name))
+            {
+                if(newName == room.Name)
+                {
+                    await Clients.Caller.SendAsync("ChangeRoomNameResult", "same");
+                    return;
+                }
+                room.Name = newName;
+                roomsRepo.UpdateRoom(room);
+                await Clients.Caller.SendAsync("ChangeRoomNameResult", "success");
+            }
+            else httpContext.Abort();
+        }
+        
+        public async Task ChangeRoomPassword(string newPassword)
+        {
+            var httpContext = Context.GetHttpContext();
+
+            var roomsRepo = this.GetService<IRoomsRepository>();
+            var roomName = httpContext.Session.GetString("currentlymanagedroom");
+            var room = await roomsRepo.GetRoomAsync(roomName);
+
+            if (room.ContainsAdmin(httpContext.User.Identity.Name))
+            {
+                if(this.GetHash(newPassword, room.Salt) == room.PasswordHash)
+                {
+                    await Clients.Caller.SendAsync("ChangeRoomPasswordResult", "same");
+                    return;
+                }
+                if(!new Regex(@"(?=.*[0-9])(?=.*[a-zA-Z]).{6,30}").IsMatch(newPassword))
+                {
+                    await Clients.Caller.SendAsync("ChangeRoomPasswordResult", "conditionsnotpassed");
+                    return;
+                }
+                room.PasswordHash = newPassword;
+                roomsRepo.UpdateRoom(room);
+                await Clients.Caller.SendAsync("ChangeRoomPasswordResult", "success");
+            }
+            else httpContext.Abort();
         }
         public async Task Op(string userName)
         {
@@ -42,7 +128,7 @@ namespace ChatApp.Hubs
             var usersRepo = this.GetService<IUsersRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = roomsRepo.GetRoom(roomName);
+            var room = await roomsRepo.GetRoomAsync(roomName);
 
             string adminName = httpContext.User.Identity.Name; 
             var user = usersRepo.GetUser(userName);
@@ -66,7 +152,7 @@ namespace ChatApp.Hubs
             var roomsRepo = this.GetService<IRoomsRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = roomsRepo.GetRoom(roomName);
+            var room = await roomsRepo.GetRoomAsync(roomName);
 
             string adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
@@ -97,7 +183,7 @@ namespace ChatApp.Hubs
             var roomsRepo = this.GetService<IRoomsRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = roomsRepo.GetRoom(roomName);
+            var room = await roomsRepo.GetRoomAsync(roomName);
 
             var adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
@@ -120,33 +206,34 @@ namespace ChatApp.Hubs
                 var bansRepo = this.GetService<IBanInfoRepository>();
 
                 var roomName = httpContext.Session.GetString("currentlymanagedroom");
-                var room = roomsRepo.GetRoom(roomName);
+                var room = await roomsRepo.GetRoomAsync(roomName);
 
                 var adminName = httpContext.User.Identity.Name;
                 var user = usersRepo.GetUser(userName);
-                
                 if (room.ContainsAdmin(adminName)
                     && room.BannedUsers.FirstOrDefault(u => u.Equals(user)) == null
                     && days > 0
                     && !room.Creator.Equals(user))
                 {
                     DateTime until = DateTime.Now.AddDays(days);
-                    if (string.IsNullOrEmpty(reason)) reason = "Без причины.";
 
-                    await roomHubContext.Clients.Client(user.RoomUser.ConnectionId)
-                        .SendAsync("UserBanned", adminName, reason,
-                        $"{until.ToShortDateString()} {until.ToShortTimeString()}");
+                    if (string.IsNullOrEmpty(reason)) reason = "Без причины.";
+                    string connectionId = user.RoomUser.ConnectionId;
+
                     await Clients.Caller.SendAsync("BanResult", "success", userName);
+
                     bansRepo.AddBanInfo(until, reason, adminName, user, room);
                     room.BannedUsers.Add(user);
                     roomUsersRepo.RemoveUser(user.RoomUser);
                     usersRepo.UpdateUser(user);
                     roomsRepo.UpdateRoom(room);
 
+                await roomHubContext.Clients.Client(connectionId)
+                .SendAsync("UserBanned", adminName, reason,
+                $"{until.ToShortDateString()} {until.ToShortTimeString()}");
 
-                    await Clients.Caller.SendAsync("BanResult", "success", userName);
-                }
-                else await Clients.Caller.SendAsync("BanResult", "failure", "");
+            }
+            else await Clients.Caller.SendAsync("BanResult", "failure", "");
         }
         public async Task Unban(string userName)
         {
@@ -158,7 +245,7 @@ namespace ChatApp.Hubs
             var bansRepo = this.GetService<IBanInfoRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = roomsRepo.GetRoom(roomName);
+            var room = await roomsRepo.GetRoomAsync(roomName);
 
             string adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);

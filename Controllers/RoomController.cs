@@ -50,22 +50,19 @@ namespace ChatApp.Controllers
             var roomList = _roomsRepo.GetAllRooms().ToList();
             return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
         }
-        public IActionResult Create(RoomViewModel model)
+        public async Task<IActionResult> Create(RoomViewModel model)
         {
             if (ModelState.IsValid)
             {
                 string userName = User.Identity.Name;
                 ViewData["Username"] = userName;
-                var room = _roomsRepo.GetRoom(model.RoomName);
+                var room = await _roomsRepo.GetRoomAsync(model.RoomName);
                 if (room is null)
                 {
                     if (model.IsPrivate && model.RoomPassword is null)
                         return this.RedirectToPostAction(actionName: "Index",
                             controllerName: "Room",
                             new() { { "type", "create" }, { "msg", "Вы не ввели пароль от комнаты" } });
-                    /* return RedirectToAction(actionName: "Index",
-                         controllerName: "Room",
-                         new { type = "create", msg = "Вы не ввели пароль для комнаты" });*/
 
                     var user = _usersRepo.GetUser(userName);
                     room = new() { Name = model.RoomName, Creator = user };
@@ -74,11 +71,11 @@ namespace ChatApp.Controllers
                         room.IsPrivate = true;
                         room.PasswordHash = model.RoomPassword;
                     }
-                    _roomsRepo.AddRoom(room);
+                    await _roomsRepo.AddRoomAsync(room);
 
                     user.RoomUser = new() { Room = room, UserName = userName, IsAdmin = true };
                     _usersRepo.UpdateUser(user);
-                    room = _roomsRepo.GetRoom(model.RoomName);
+                    room = await _roomsRepo.GetRoomAsync(model.RoomName);
                     room.Admins.Add(user);
                     _roomsRepo.UpdateRoom(room);
 
@@ -105,11 +102,11 @@ namespace ChatApp.Controllers
                 new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
                 //return RedirectToAction (actionName: "Index", controllerName: "Room", new { msg = "Ошибка. Проверьте, все ли поля формы вы заполнили" });
         }
-        public IActionResult Connect(RoomViewModel model)
+        public async Task<IActionResult> Connect(RoomViewModel model)
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
-            var room = _roomsRepo.GetRoom(model.RoomName);
+            var room = await _roomsRepo.GetRoomAsync(model.RoomName);
             var user = _usersRepo.GetUser(userName);
             if (room is not null)
             {
@@ -141,7 +138,7 @@ namespace ChatApp.Controllers
                     bool isAuthenticated = this.GetHash(model.RoomPassword, room.Salt) == room.PasswordHash;
                     if (!isAuthenticated) return this.RedirectToPostAction(actionName: "Index",
                         controllerName: "Room",
-                        new() { { "msg", "Неверный пароль от комнаты" } });
+                        new() { { "msg", "Неверный пароль от комнаты" } }); //проверить на проверку пароля
                 }
                 else if(room.IsPrivate) return this.RedirectToPostAction(actionName: "Index", 
                     controllerName: "Room", 

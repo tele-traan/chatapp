@@ -3,7 +3,36 @@
 <div id="div-main">
     <h1>Управление комнатой @Model.Name</h1>
     <hr />
-    <div id="usersinroom">
+    <form>
+        <h3>Сменить название комнаты</h3><br />
+        <input type="text" name="new-room-name" placeholder="Новое название комнаты" />
+        <input class="btn btn-outline-success" type="button" name="new-room-name-btn" value="Сменить"/>
+        <p id="change-room-name-summary"></p>
+    </form>
+    <hr />
+    <div id="room-privacy-settings">
+    @if (Model.IsPrivate)
+    {        
+        <form>
+            <input class="btn btn-outline-success" name="unprivate-btn" type="button" value="Сделать комнату открытой" />
+        </form><br />
+
+        <form>
+            <h3>Сменить пароль от комнаты</h3><br />
+            <input type="password" name="new-room-password" placeholder="Новый пароль от комнаты" />
+            <input class="btn btn-outline-success" type="button" name="new-room-password-btn" value="Сменить"/>
+            <p id="change-room-password-summary"></p>
+        </form>
+    }
+    else
+    {
+        <form>
+            <input class="btn btn-outline-danger" name="private-btn" type="button" value="Сделать комнату закрытой" />
+        </form>
+    }
+    </div>
+    <hr />
+    <div id="users-in-room">
     <h2>Пользователи в комнате</h2>
     <hr />
     @foreach (var v in Model.RoomUsers)
@@ -30,7 +59,7 @@
         <hr />
     }
     </div>
-    <div id="bannedusers">
+    <div id="banned-users">
     <h2>Забаненные пользователи</h2>
     @foreach (var v in Model.BannedUsers)
     {

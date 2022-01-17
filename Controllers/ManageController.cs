@@ -35,11 +35,11 @@ namespace ChatApp.Controllers
             return View(new ManageViewModel { Message=msg, ManagedRooms = managedRooms});
         }
 
-        public IActionResult ManageRoom(int roomId)
+        public async Task<IActionResult> ManageRoom(int roomId)
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
-            Room room = _roomsRepo.GetRoom(roomId);
+            Room room = await _roomsRepo.GetRoomAsync(roomId);
             if (room.ContainsAdmin(User.Identity.Name))
             {
                 HttpContext.Session.SetString("currentlymanagedroom", room.Name);

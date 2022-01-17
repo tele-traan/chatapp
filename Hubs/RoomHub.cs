@@ -31,7 +31,8 @@ namespace ChatApp.Hubs
             {
                 user.RoomUser.ConnectionId = Context.ConnectionId;
                 usersRepo.UpdateUser(user);
-                await Clients.Clients(this.GetIds(roomName))
+                var connectionIds = await this.GetIds(roomName);
+                await Clients.Clients(connectionIds)
                     .SendAsync("MemberJoined", userName, user.RoomUser.IsAdmin);
             }
             else
@@ -51,7 +52,8 @@ namespace ChatApp.Hubs
                 string roomName = user.Room.Name;
 
                 roomUsersRepo.RemoveUser(user);
-                await Clients.Clients(this.GetIds(roomName))
+                var connectionIds = await this.GetIds(roomName);
+                await Clients.Clients(connectionIds)
                     .SendAsync("MemberLeft", userName, user.IsAdmin);
             }
             await base.OnDisconnectedAsync(exception);
@@ -59,16 +61,15 @@ namespace ChatApp.Hubs
         public async Task NewMessage(string message)
         {
             var usersRepo = this.GetService<IUsersRepository>();
-            string userName = Context.GetHttpContext().User.Identity.Name;
+            var httpContext = Context.GetHttpContext();
+            string userName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
-            if(user.RoomUser is null)
-            {
-                Context.Abort();
-                Context.GetHttpContext().Abort();
-            }
+            if(user.RoomUser is null) Context.GetHttpContext().Abort();
+            
             string roomName = user.RoomUser.Room.Name;
             string time = DateTime.Now.ToShortTimeString();
-            await Clients.Clients(this.GetIds(roomName)).SendAsync("NewMessage", time, userName, message.Trim());
+            var connectionIds = await this.GetIds(roomName);
+            await Clients.Clients(connectionIds).SendAsync("NewMessage", time, userName, message.Trim());
         }
     }
 }
