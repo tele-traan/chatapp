@@ -11,8 +11,7 @@
     </form>
     <hr />
     <div id="room-privacy-settings">
-    @if (Model.IsPrivate)
-    {        
+        <div id="private-div">        
         <form>
             <input class="btn btn-outline-success" name="unprivate-btn" type="button" value="Сделать комнату открытой" />
         </form><br />
@@ -23,14 +22,23 @@
             <input class="btn btn-outline-success" type="button" name="new-room-password-btn" value="Сменить"/>
             <p id="change-room-password-summary"></p>
         </form>
-    }
-    else
-    {
-        <form>
-            <input class="btn btn-outline-danger" name="private-btn" type="button" value="Сделать комнату закрытой" />
-        </form>
-    }
+        </div>
+        <div id="unprivate-div">
+            <form>
+                <input class="btn btn-outline-danger" name="private-btn" type="button" value="Сделать комнату закрытой" />
+            </form>
+        </div>
     </div>
+    <script>
+        @if (Model.IsPrivate)
+        {
+            @:$('#unprivate-div').fadeOut();
+        }
+        else
+        {
+            @:$('#private-div').fadeOut();
+        }
+    </script>
     <hr />
     <div id="users-in-room">
     <h2>Пользователи в комнате</h2>

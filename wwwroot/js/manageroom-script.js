@@ -2,10 +2,10 @@
 var connection = new signalR.HubConnectionBuilder().withUrl("/manageroomhub").build();
 
 let forms = document.forms;
+forms[0] = null;
 
 for (let f of forms) {
     if (f.name === undefined) {
-
         const privatebtn = f.elements["private-btn"],
             unprivatebtn = f.elements["unprivate-btn"],
             changenamebtn = f.elements["new-room-name-btn"],
@@ -82,7 +82,35 @@ for (let f of forms) {
     }
 }
 
+connection.on("MakePrivateResult", result => {
+    if (result === "success") {
+        alert("В комнату теперь можно войти только с паролем");
+        $('#unprivate-div').fadeOut();
+        $('#private-div').fadeIn();
+    }
+});
+connection.on("MakeUnprivateResult", result => {
+    $('#render').fadeIn();
+    if (result === "success") {
+        alert("В комнату теперь можно войти только с паролем");
+        $('#private-div').fadeOut();
+        $('#unprivate-div').fadeIn();
+    } else alert("Ошибка. Попробуйте снова");
+});
+connection.on("ChangeRoomNameResult", (result, newName) => {
+    $('#render').fadeIn();
+    if (result === "success") alert(`Название комнаты успешно изменено на ${newName}`);
+    else if (result === "same") alert("Старое и новое названия комнаты совпадают");
+    else alert("Ошибка. Попробуйте снова");
+});
+connection.on("ChangeRoomPasswordResult", result => {
+    $('#render').fadeIn(); $('#render').fadeIn();
+    if (result === "success") alert("Пароль от комнаты успешно изменён");
+    else if (result === "same") alert("Старый и новый пароли от комнаты совпадают");
+    else alert("Ошибка. Попробуйте снова");
+});
 connection.on("OpResult", (response, username) => {
+    $('#render').fadeIn();
     let p = $(`#summary-${username}`);
     if (response == "success") {
         p.text(`Пользователю ${username} выданы права администратора`);
@@ -93,6 +121,7 @@ connection.on("OpResult", (response, username) => {
     }
 });
 connection.on("DeopResult", (response, username) => {
+    $('#render').fadeIn();
     let p = $(`#summary-${username}`);
     if (response == "success") {
         p.text(`У пользователя ${username} отняты права администратора`);
@@ -103,6 +132,7 @@ connection.on("DeopResult", (response, username) => {
     }
 });
 connection.on("KickResult", (response, username) => {
+    $('#render').fadeIn();
     let p = $(`#summary-${username}`);
     if (response == "success") {
         let form = document.forms[username];
