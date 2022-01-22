@@ -26,6 +26,10 @@ namespace ChatApp.Repositories
         public bool RemoveUser(User user)
         {
             if (_context.Users.FirstOrDefault(u => u.Equals(user)) == null) return false;
+
+            foreach (Room room in user.RoomsCreated)
+                room.Creator = room.Admins[new System.Random().Next(0, room.Admins.Count)];
+
             _context.Users.Remove(user);
             _context.SaveChanges();
             return true;

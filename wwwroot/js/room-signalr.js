@@ -30,7 +30,7 @@ connection.on("MemberJoined", (memberName,isAdmin) => {
     if (isAdmin) {
         p.textContent = `Админ ${memberName}`;
         p.style.color = "crimson";
-    } else p.textContent = `Пользователь ${memberName}`;
+    } else p.textContent = `${memberName}`;
     document.getElementById("users").appendChild(p);
 });
 
@@ -48,14 +48,16 @@ connection.on("MemberLeft", (memberName, isAdmin) => {
 });
 
 connection.on("UserKicked", admin => {
+    $('#render').fadeOut();
     connection.stop();
-    alert(`Администратор ${admin} кикнул вас из комнаты`);
+    alert(`Администратор ${admin} кикнул вас из комнаты. Переадресация через 5 секунд...`);
     setTimeout(() => window.location.href = "/Home/Index", 5000);
 });
 
 connection.on("UserBanned", (admin, reason, time) => {
+    $('#render').fadeOut();
     connection.stop();
-    alert(`Администратор ${admin} забанил вас в этой комнате до ${time} по причине: ${reason}`);
+    alert(`Администратор ${admin} забанил вас в этой комнате до ${time} по причине: "${reason}". Переадресация через 5 секунд...`);
     setTimeout(() => window.location.href = "/Home/Index", 5000);
 });
 
@@ -68,6 +70,7 @@ connection.on("UserDeopped", creator => {
 });
 
 document.getElementById("btnsendmsg").addEventListener("click", e => {
+    e.preventDefault();
     let msg = document.getElementById("msg").value;
     if (msg != null && msg != "" && msg != " ") {
         connection.invoke("NewMessage", msg);
@@ -76,6 +79,11 @@ document.getElementById("btnsendmsg").addEventListener("click", e => {
         alert("Сообщение не может быть пустым");
         return;
     }
+});
+
+connection.on("RoomDeleted", () => {
+    alert("Эта комната удалена создателем. Переадресация через 5 секунд...");
+    setTimeout(()=>window.location.href="/Home/Index", 5000)
 });
 
 connection.start();

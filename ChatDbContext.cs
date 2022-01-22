@@ -32,10 +32,8 @@ namespace ChatApp.DB
             builder.Entity<User>()
                 .HasMany(u => u.RoomsCreated)
                 .WithOne(r => r.Creator)
-                .IsRequired()
                 .HasForeignKey(r => r.CreatorId)
                 .OnDelete(DeleteBehavior.NoAction);
-
 
             builder.Entity<Room>()
                 .HasMany(r => r.RoomUsers)
@@ -81,6 +79,10 @@ namespace ChatApp.DB
             builder.Entity<User>().Navigation(u => u.ManagedRooms).AutoInclude();
             builder.Entity<User>().Navigation(u => u.RoomsWhereIsBanned).AutoInclude();
             builder.Entity<User>().Navigation(u => u.BanInfos).AutoInclude();
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        {
+            builder.EnableSensitiveDataLogging();
         }
         public ChatDbContext(DbContextOptions<ChatDbContext> options) : base(options)
         {

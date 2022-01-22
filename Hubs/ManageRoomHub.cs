@@ -39,13 +39,14 @@ namespace ChatApp.Hubs
             var httpContext = Context.GetHttpContext();
 
             var roomsRepo = this.GetService<IRoomsRepository>();
-            string roomName = httpContext.Session.GetString("currentlymangedroom");
+            string roomName = httpContext.Session.GetString("currentlymanagedroom");
             Room room = await roomsRepo.GetRoomAsync(roomName);
             if (room.ContainsAdmin(httpContext.User.Identity.Name))
             {
-                if (!string.IsNullOrEmpty(roomPassword))
+                if (!new Regex(@"(?!\s)(?=.*[0-9])(?=.*([a-zA-Z]|[а-яА-Я])).{6,30}")
+                    .IsMatch(roomPassword))
                 {
-                    await Clients.Caller.SendAsync("MakePrivateResult", "failure");
+                    await Clients.Caller.SendAsync("MakePrivateResult", "conditionsnotpassed");
                     return;
                 }
                 room.IsPrivate = true;
@@ -60,7 +61,7 @@ namespace ChatApp.Hubs
             var httpContext = Context.GetHttpContext();
 
             var roomsRepo = this.GetService<IRoomsRepository>();
-            string roomName = httpContext.Session.GetString("currentlymangedroom");
+            string roomName = httpContext.Session.GetString("currentlymanagedroom");
             Room room = await roomsRepo.GetRoomAsync(roomName);
             if (room.ContainsAdmin(httpContext.User.Identity.Name))
             {
@@ -83,12 +84,13 @@ namespace ChatApp.Hubs
             {
                 if(newName == room.Name)
                 {
-                    await Clients.Caller.SendAsync("ChangeRoomNameResult", "same");
+                    await Clients.Caller.SendAsync("ChangeRoomNameResult", "same", "");
                     return;
                 }
                 room.Name = newName;
+                httpContext.Session.SetString("currentlymanagedroom", newName);
                 roomsRepo.UpdateRoom(room);
-                await Clients.Caller.SendAsync("ChangeRoomNameResult", "success");
+                await Clients.Caller.SendAsync("ChangeRoomNameResult", "success", newName);
             }
             else httpContext.Abort();
         }
@@ -108,7 +110,8 @@ namespace ChatApp.Hubs
                     await Clients.Caller.SendAsync("ChangeRoomPasswordResult", "same");
                     return;
                 }
-                if(!new Regex(@"(?=.*[0-9])(?=.*[a-zA-Z]).{6,30}").IsMatch(newPassword))
+                if(!new Regex(@"(?!\s)(?=.*[0-9])(?=.*([a-zA-Z]|[а-яА-Я])).{6,30}")
+                    .IsMatch(newPassword))
                 {
                     await Clients.Caller.SendAsync("ChangeRoomPasswordResult", "conditionsnotpassed");
                     return;
@@ -208,7 +211,7 @@ namespace ChatApp.Hubs
                 var roomName = httpContext.Session.GetString("currentlymanagedroom");
                 var room = await roomsRepo.GetRoomAsync(roomName);
 
-                var adminName = httpContext.User.Identity.Name;
+                string adminName = httpContext.User.Identity.Name;
                 var user = usersRepo.GetUser(userName);
                 if (room.ContainsAdmin(adminName)
                     && room.BannedUsers.FirstOrDefault(u => u.Equals(user)) == null

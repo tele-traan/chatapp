@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
-using ChatApp.DB;
 using ChatApp.Util;
 using ChatApp.Models;
 using ChatApp.Repositories;
@@ -40,12 +35,10 @@ namespace ChatApp.Controllers
                 return this.RedirectToPostAction(actionName: "Register",
                     controllerName: "Auth",
                     new() { {"msg", "Ошибка. Войдите снова" } });
-            //return RedirectToAction(actionName:"Register", controllerName: "Auth", new { msg = "Ошибка. Войдите снова"});
             if (user.RoomUser is not null)
                 return this.RedirectToPostAction(actionName: "Index",
                     controllerName: "Home",
                     new() { { "msg", "С одного аккаунта можно находиться только в одной комнате" } });
-                //return RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Этот аккаунт уже находится в комнате. Кикнуть?" });
             
             var roomList = _roomsRepo.GetAllRooms().ToList();
             return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
@@ -68,6 +61,12 @@ namespace ChatApp.Controllers
                     room = new() { Name = model.RoomName, Creator = user };
                     if (model.IsPrivate)
                     {
+                        if (!new Regex(@"(?=.*[0-9])(?=.*[a-zA-Z]).{6,30}").IsMatch(model.RoomPassword))
+                            return this.RedirectToPostAction(
+                                actionName: "Index",
+                                controllerName: "Room",
+                                new() { {"msg", "Пароль должен содержать буквы и цифры, а также иметь длину от 6 до 30 символов" } }
+                            );
                         room.IsPrivate = true;
                         room.PasswordHash = model.RoomPassword;
                     }
@@ -94,13 +93,10 @@ namespace ChatApp.Controllers
                 else return this.RedirectToPostAction(actionName: "Index",
                     controllerName: "Room",
                     new() { { "type", "create" }, { "msg", "Комнаты с таким названием не существует" } });
-                //return RedirectToAction(actionName: "Index", controllerName: "Room", new { msg = "Комната с таким названием уже существует", type = "create" });
-
             }
             else return this.RedirectToPostAction(actionName: "Index",
                 controllerName: "Room",
                 new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
-                //return RedirectToAction (actionName: "Index", controllerName: "Room", new { msg = "Ошибка. Проверьте, все ли поля формы вы заполнили" });
         }
         public async Task<IActionResult> Connect(RoomViewModel model)
         {
@@ -138,7 +134,7 @@ namespace ChatApp.Controllers
                     bool isAuthenticated = this.GetHash(model.RoomPassword, room.Salt) == room.PasswordHash;
                     if (!isAuthenticated) return this.RedirectToPostAction(actionName: "Index",
                         controllerName: "Room",
-                        new() { { "msg", "Неверный пароль от комнаты" } }); //проверить на проверку пароля
+                        new() { { "msg", "Неверный пароль от комнаты" } });
                 }
                 else if(room.IsPrivate) return this.RedirectToPostAction(actionName: "Index", 
                     controllerName: "Room", 

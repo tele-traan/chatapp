@@ -64,7 +64,8 @@ namespace ChatApp.Util
         }
         public static ContentResult RedirectToPostAction(this Controller controller,
             string actionName,
-            string controllerName, Dictionary<string, string> parameters)
+            string controllerName, 
+            Dictionary<string, string> parameters)
         {
             StringBuilder sb = new();
             sb.Append("<html><head><meta charset=\"utf-8\"></head>");

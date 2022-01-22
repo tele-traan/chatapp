@@ -25,6 +25,7 @@
         </div>
         <div id="unprivate-div">
             <form>
+                <input type="password" name="room-password" placeholder="Пароль от комнаты" />
                 <input class="btn btn-outline-danger" name="private-btn" type="button" value="Сделать комнату закрытой" />
             </form>
         </div>
@@ -40,6 +41,16 @@
         }
     </script>
     <hr />
+    <div>
+        <button id="delete-room" class="btn btn-outline-danger">Удалить комнату</button>
+        <div id="delete-room-confirm">
+        <form asp-antiforgery="true" method="post" action="/Manage/DeleteRoom">
+            <h1>Вы уверены, что хотите удалить эту комнату навсегда без возможности восстановления?</h1>
+            <input type="submit" class="btn btn-outline-danger" value="Уверен"/>
+            <input type="hidden" name="roomId" value="@Model.RoomId" />
+        </form>
+            </div>
+    </div>
     <div id="users-in-room">
     <h2>Пользователи в комнате</h2>
     <hr />

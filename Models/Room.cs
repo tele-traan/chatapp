@@ -32,8 +32,8 @@ namespace ChatApp.Models
         public List<User> BannedUsers { get; set; }
         public List<BanInfo> BanInfos { get; set; }
         public List<User> Admins { get; set; }
-        public int CreatorId { get; set; }
-        public User Creator { get; set; }
+        public int? CreatorId { get; set; }
+        public User? Creator { get; set; }
         public Room()
         {
             RoomUsers = new();

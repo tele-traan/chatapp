@@ -1,11 +1,17 @@
 ﻿$('#render').fadeOut(1);
+$('#delete-room-confirm').fadeOut(1);
 var connection = new signalR.HubConnectionBuilder().withUrl("/manageroomhub").build();
 
 let forms = document.forms;
 forms[0] = null;
 
+$('#delete-room').on('click', e => {
+    $(this).fadeOut();
+    $('#delete-room-confirm').fadeIn();
+});
+
 for (let f of forms) {
-    if (f.name === undefined) {
+    if (f.name === "") {
         const privatebtn = f.elements["private-btn"],
             unprivatebtn = f.elements["unprivate-btn"],
             changenamebtn = f.elements["new-room-name-btn"],
@@ -13,7 +19,13 @@ for (let f of forms) {
         if (privatebtn !== undefined) {
             privatebtn.addEventListener("click", e => {
                 e.preventDefault();
-                connection.invoke('MakeRoomPrivate');
+                let password = f.elements["room-password"].value;
+                if (password === "" || password === undefined) {
+                    alert("Вы не ввели пароль от комнаты");
+                    return;
+                }
+                connection.invoke('MakeRoomPrivate', password);
+                f.elements["room-password"].value = "";
                 $('#render').fadeOut();
             });
         }
@@ -38,7 +50,7 @@ for (let f of forms) {
                 $('#render').fadeOut();
             });
         }
-        if (changepassbt !== undefined) {
+        if (changepassbtn !== undefined) {
             let p = $('#change-room-password-summary');
             changepassbtn.addEventListener("click", e => {
                 e.preventDefault();
@@ -83,31 +95,42 @@ for (let f of forms) {
 }
 
 connection.on("MakePrivateResult", result => {
+    $('#render').fadeIn();
     if (result === "success") {
         alert("В комнату теперь можно войти только с паролем");
         $('#unprivate-div').fadeOut();
         $('#private-div').fadeIn();
-    }
+    } else if (result == "conditionsnotpassed")
+        alert("Ошибка. Пароль должен содержать буквы и цифры, а также иметь длину от 6 до 30 символов");
+    else alert("Ошибка. Попробуйте снова");
 });
+
 connection.on("MakeUnprivateResult", result => {
     $('#render').fadeIn();
     if (result === "success") {
-        alert("В комнату теперь можно войти только с паролем");
+        alert("");
         $('#private-div').fadeOut();
         $('#unprivate-div').fadeIn();
     } else alert("Ошибка. Попробуйте снова");
 });
 connection.on("ChangeRoomNameResult", (result, newName) => {
     $('#render').fadeIn();
-    if (result === "success") alert(`Название комнаты успешно изменено на ${newName}`);
-    else if (result === "same") alert("Старое и новое названия комнаты совпадают");
-    else alert("Ошибка. Попробуйте снова");
+    let p = $('#change-room-name-summary');
+    if (result === "success") {
+        p.text(`Название комнаты успешно изменено на ${newName}`);
+        document.querySelector("h1").innerText = `Управление комнатой ${newName}`;
+    }
+    else if (result === "same") p.text("Старое и новое названия комнаты совпадают");
+    else p.text("Ошибка. Попробуйте снова");
 });
 connection.on("ChangeRoomPasswordResult", result => {
-    $('#render').fadeIn(); $('#render').fadeIn();
-    if (result === "success") alert("Пароль от комнаты успешно изменён");
-    else if (result === "same") alert("Старый и новый пароли от комнаты совпадают");
-    else alert("Ошибка. Попробуйте снова");
+    $('#render').fadeIn();
+    let p = $('#change-room-password-summary');
+    if (result === "success") p.text("Пароль от комнаты успешно изменён");
+    else if (result === "same") p.text("Старый и новый пароли от комнаты совпадают");
+    else if (result === "conditionsnotpassed")
+        p.text("Пароль должен содержать буквы, цифры и иметь длину от 6 до 30 символов");
+    else p.text("Ошибка. Попробуйте снова");
 });
 connection.on("OpResult", (response, username) => {
     $('#render').fadeIn();

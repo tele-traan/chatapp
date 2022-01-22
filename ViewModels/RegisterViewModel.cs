@@ -4,15 +4,14 @@ namespace ChatApp.Models
     public class RegisterViewModel : BaseViewModel
     {
         [Required(ErrorMessage ="Введите никнейм")]
-        [MinLength(4, ErrorMessage ="Ник должен быть длиннее 3 символов")]
-        [MaxLength(21, ErrorMessage = "Ник должен быть короче 20 символов")]
+        [RegularExpression(@"(?!\s)([0-9]|[a-zA-Z]|[а-яА-Я]){3,21}", ErrorMessage ="Ник должен быть длиной от 3 до 20 символов, " +
+            "содержать только цифры и буквы, не иметь пробелов")]
         public new string UserName { get; set; }
 
         [DataType(DataType.Password)]
         [Required(ErrorMessage ="Введите пароль")]
-        [MinLength(7, ErrorMessage ="Пароль должен быть длиннее 6 символов")]
-        [MaxLength(30,ErrorMessage = "Пароль слишком длинный")]
-        [RegularExpression(@"[\w\d]+", ErrorMessage ="Пароль должен содержать буквы и цифры")]
+        [RegularExpression(@"(?!\s)(?=.*[0-9])(?=.*([a-zA-Z]|[а-яА-Я])).{6,30}", ErrorMessage ="Пароль должен содержать буквы и цифры " +
+            "и иметь длину от 6 до 30 символов, не иметь пробелов")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
