@@ -1,14 +1,11 @@
-﻿using ChatApp.DB;
-using ChatApp.Models;
-using ChatApp.Repositories;
+﻿using System.Linq;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
-using System.Linq;
 using ChatApp.Util;
+using ChatApp.Models;
+using ChatApp.Repositories;
 
 namespace ChatApp.Controllers
 {
@@ -46,7 +43,6 @@ namespace ChatApp.Controllers
                 return this.RedirectToPostAction(actionName: "Index",
                     controllerName: "Home",
                     new() { { "msg", "Пользователь уже в сети" } });
-                //RedirectToAction(actionName: "Index", controllerName: "Home", new { msg = "Пользователь уже в сети" });
             }
             var users = _gcUsersRepo.GetAllUsers().ToList();
             var obj = new ChatViewModel { Users = users };

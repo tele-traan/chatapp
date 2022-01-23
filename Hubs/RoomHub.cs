@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
-using ChatApp.DB;
 using ChatApp.Util;
 using ChatApp.Repositories;
 

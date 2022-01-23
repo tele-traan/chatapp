@@ -1,0 +1,135 @@
+﻿nav {
+    background-color: #28a745;
+}
+p{
+    margin:0;
+}
+input[type="text"], input[type="password"] {
+    width: 20%;
+    border: 1px solid #28a745;
+    border-radius: 3px;
+}
+#div-main {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+#users::before{
+    content:'';
+}
+#manage{
+    vertical-align:central;
+    text-align:center;
+    height: 100rem;
+    white-space:nowrap;
+    overflow:clip;
+    display:inline-block;
+}
+#manage p{
+    margin:0px;
+    display:inline-block;
+    color:white;
+    font-weight:600;
+    width:min-content;
+}
+.nav-custom a{
+    height:100%;
+    margin:0px;
+}
+.nav-custom {
+    margin-top: 10%;
+    margin-left: 10%;
+    padding: 2px;
+    white-space: nowrap;
+    margin-left: 10%;
+    border: 1px solid white;
+    background-color: #28a745;
+    border-radius: 4px;
+    color: white;
+    transition: ease-in-out 172ms;
+}
+.nav-custom:hover {
+    border: 1px solid white;
+    color: #28a745;
+    text-decoration: none;
+    background-color: white;
+}
+#users {
+    width:30%;
+    float:right;
+    margin-left:0px;
+    background-image: linear-gradient(105deg, darkgray, white);
+    border: 1px solid black;
+}
+
+#messages {
+    width: 70%;
+    float:left;
+    margin-right:0px;
+    background-image: linear-gradient(105deg, white, darkgray);
+    border: 1px solid black;
+}
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}

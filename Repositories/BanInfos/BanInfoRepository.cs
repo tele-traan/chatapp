@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 
 using ChatApp.DB;
 using ChatApp.Models;
+
 namespace ChatApp.Repositories
 {
     public class BanInfoRepository : IBanInfoRepository

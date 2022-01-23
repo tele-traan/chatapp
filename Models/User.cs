@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+
 namespace ChatApp.Models
 {
     public class User

@@ -1,6 +1,7 @@
 ﻿using System;
 
 using ChatApp.Models;
+
 namespace ChatApp.Repositories
 {
     public interface IBanInfoRepository

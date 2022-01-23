@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+
 namespace ChatApp.Models
 {
     public class Room
@@ -33,7 +34,7 @@ namespace ChatApp.Models
         public List<BanInfo> BanInfos { get; set; }
         public List<User> Admins { get; set; }
         public int? CreatorId { get; set; }
-        public User? Creator { get; set; }
+        public User Creator { get; set; }
         public Room()
         {
             RoomUsers = new();

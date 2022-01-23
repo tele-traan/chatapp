@@ -68,12 +68,10 @@ namespace ChatApp.Controllers
                 else return this.RedirectToPostAction(actionName: "RegisterIndex",
                     controllerName: "Auth",
                     new() { { "msg", "Этот ник уже занят" } });
-                //return RedirectToAction(actionName: "Register", new {msg="Этот ник уже занят"});
             }
             else return this.RedirectToPostAction(actionName: "Register",
                 controllerName: "Auth",
                 new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } }); 
-                //return RedirectToAction(actionName:"Register", new {msg="Ошибка. Проверьте, заполнили ли вы все поля формы"});
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -98,7 +96,6 @@ namespace ChatApp.Controllers
             else return this.RedirectToPostAction(actionName: "LoginIndex",
                 controllerName: "Auth",
                 new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
-                //return RedirectToAction("LoginIndex", new { msg = "Ошибка. Проверьте, заполнили ли вы все поля формы" });
         }
     }
 }

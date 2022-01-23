@@ -1,14 +1,18 @@
+using System.IO;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ChatApp.Hubs;
-using ChatApp.DB;
-using ChatApp.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
+
+using ChatApp.DB;
+using ChatApp.Hubs;
+using ChatApp.Repositories;
 
 namespace ChatApp
 {
@@ -30,9 +34,10 @@ namespace ChatApp
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ChatDbContext>(options => options.UseSqlServer(connection));
+            services.AddDataProtection().
+                PersistKeysToFileSystem(new DirectoryInfo("DataProtectionKeys"));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services.AddTransient<IUsersRepository, UsersRepository>();
             services.AddTransient<IGCUsersRepository, GCUsersRepository>();
             services.AddTransient<IRoomsRepository, RoomsRepository>();
