@@ -261,7 +261,7 @@ namespace ChatApp.Hubs
                     bansRepo.RemoveBanInfo(banInfo);
                     room.BannedUsers.Remove(user);
                     roomsRepo.UpdateRoom(room);
-                    await Clients.Caller.SendAsync("UnanResult", "success", userName);
+                    await Clients.Caller.SendAsync("UnbanResult", "success", userName);
                 }
                 else await Clients.Caller.SendAsync("UnbanResult", "failure", "");
             } else await Clients.Caller.SendAsync("UnbanResult", "failure", "");

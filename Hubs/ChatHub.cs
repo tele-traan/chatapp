@@ -45,9 +45,12 @@ namespace ChatApp.Hubs
         }
         public async Task NewMessage(string message)
         {
+            var gcRepo = this.GetService<IGCRepository>();
             string userName = Context.GetHttpContext().User.Identity.Name;
-            var time = DateTime.Now.ToShortTimeString();
-            await Clients.All.SendAsync("NewMessage", time, userName, message.Trim());
+            var time = DateTime.Now;
+
+            gcRepo.AddMessage(new() { Text = message, SenderName = userName, DateTime = time });
+            await Clients.All.SendAsync("NewMessage", time.ToShortTimeString(), userName, message.Trim());
         }
     }
 }

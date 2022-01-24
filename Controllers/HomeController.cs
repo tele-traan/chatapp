@@ -12,15 +12,16 @@ namespace ChatApp.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-
+        private readonly IGCRepository _gcRepo;
         private readonly IUsersRepository _usersRepo;
         private readonly IGCUsersRepository _gcUsersRepo;
         private readonly IRoomUsersRepository _roomUsersRepo;
-        public HomeController(IUsersRepository repo, IGCUsersRepository gcRepo, IRoomUsersRepository roomRepo)
+        public HomeController(IUsersRepository repo, IGCUsersRepository gcUsersRepo, IRoomUsersRepository roomRepo, IGCRepository gcRepo)
         {
             _usersRepo = repo;
-            _gcUsersRepo = gcRepo;
+            _gcUsersRepo = gcUsersRepo;
             _roomUsersRepo = roomRepo;
+            _gcRepo = gcRepo;
         }
         [HttpGet]
         [HttpPost]
@@ -45,7 +46,8 @@ namespace ChatApp.Controllers
                     new() { { "msg", "Пользователь уже в сети" } });
             }
             var users = _gcUsersRepo.GetAllUsers().ToList();
-            var obj = new ChatViewModel { Users = users };
+            var msgs = _gcRepo.GetLastMessages().ToList();
+            var obj = new ChatViewModel { Users = users, LastMessages = msgs };
            return View(obj);
         }
     }

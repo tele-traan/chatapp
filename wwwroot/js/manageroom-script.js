@@ -71,7 +71,7 @@ for (let f of forms) {
         for (let a of actions) {
             if (f.elements[a] !== undefined) {
                 f.elements[a].addEventListener("click", e => {
-                    if (summary !== undefined) summary.innerText = "";
+                    if (summary !== undefined && summary !==null) summary.innerText = "";
                     e.preventDefault();
                     connection.invoke(a, username);
                 });

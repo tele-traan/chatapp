@@ -45,10 +45,10 @@ namespace ChatApp.DB
                 .WithOne(b => b.Room)
                 .IsRequired()
                 .HasForeignKey(b => b.RoomId);
-            /*builder.Entity<Room>()
-                .HasMany(r => r.BannedUsers)
-                .WithMany(u => u.RoomsWhereIsBanned)
-                .UsingEntity(e => e.ToTable("RoomsBans"));*/
+            builder.Entity<Room>()
+                .HasMany(r => r.LastMessages)
+                .WithOne(m => m.Room)
+                .HasForeignKey(m => m.RoomId);
 
             builder.Entity<RoomUser>()
                 .HasOne(ru => ru.Room)
@@ -66,6 +66,7 @@ namespace ChatApp.DB
                 .WithMany(u => u.BanInfos)
                 .IsRequired()
                 .HasForeignKey(u => u.UserId);
+
             builder.Entity<RoomUser>().Navigation(ru => ru.User).AutoInclude();
             builder.Entity<RoomUser>().Navigation(ru => ru.Room).AutoInclude();
 
@@ -79,6 +80,8 @@ namespace ChatApp.DB
             builder.Entity<User>().Navigation(u => u.ManagedRooms).AutoInclude();
             builder.Entity<User>().Navigation(u => u.RoomsWhereIsBanned).AutoInclude();
             builder.Entity<User>().Navigation(u => u.BanInfos).AutoInclude();
+
+            builder.Entity<Room>().Navigation(r => r.LastMessages).AutoInclude();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
@@ -93,5 +96,7 @@ namespace ChatApp.DB
         public DbSet<GlobalChatUser> GlobalChatUsers { get; set; }
         public DbSet<RoomUser> RoomUsers { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<GCMessage> GCMessages { get; set; }
     }
 }

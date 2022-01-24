@@ -61,11 +61,11 @@ namespace ChatApp.Controllers
                     room = new() { Name = model.RoomName, Creator = user };
                     if (model.IsPrivate)
                     {
-                        if (!new Regex(@"(?=.*[0-9])(?=.*[a-zA-Z]).{6,30}").IsMatch(model.RoomPassword))
+                        if (!new Regex(@"(?!\s)(?=.*[0-9])(?=.*([a-zA-Z]|[а-яА-Я])).{6,30}").IsMatch(model.RoomPassword))
                             return this.RedirectToPostAction(
                                 actionName: "Index",
                                 controllerName: "Room",
-                                new() { {"msg", "Пароль должен содержать буквы и цифры, а также иметь длину от 6 до 30 символов" } }
+                                new() { {"msg", "Пароль должен содержать буквы и цифры, а также иметь длину от 6 до 30 символов, не иметь пробелов" } }
                             );
                         room.IsPrivate = true;
                         room.PasswordHash = model.RoomPassword;
@@ -86,7 +86,8 @@ namespace ChatApp.Controllers
                         RoomName = model.RoomName,
                         Message = $"Комната {model.RoomName}",
                         UsersInRoom = list,
-                        RoomAdmins = room.Admins
+                        RoomAdmins = room.Admins,
+                        LastMessages = new()
                     };
                     return View(viewName: "Room", obj);
                 }
@@ -148,7 +149,8 @@ namespace ChatApp.Controllers
                     UserName = model.UserName, 
                     RoomName = model.RoomName, 
                     UsersInRoom = list,
-                    RoomAdmins = room.Admins};
+                    RoomAdmins = room.Admins,
+                    LastMessages = room.LastMessages};
                 return View(viewName: "Room", obj);
             }
             else

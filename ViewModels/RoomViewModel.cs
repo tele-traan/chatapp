@@ -1,7 +1,8 @@
-﻿using ChatApp.Util;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
+using ChatApp.Util;
+
 namespace ChatApp.Models
 {
     public class RoomViewModel : BaseViewModel
@@ -14,5 +15,6 @@ namespace ChatApp.Models
         public IEnumerable<Room> Rooms { get; set; }
         public IEnumerable<RoomUser> UsersInRoom { get; set; }
         public IEnumerable<User> RoomAdmins { get; set; }
+        public List<Message> LastMessages { get; set; }
     }
 }

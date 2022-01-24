@@ -5,7 +5,15 @@
     <input type="text" id="msg" />
     <input type="submit" id="btnsendmsg" value="Отправить" /> 
     <br />
-    <div id="messages"></div>
+    <div id="messages">
+        @if(Model.LastMessages is not null){
+            @foreach(var msg in Model.LastMessages)
+            {
+                <p>@(msg.DateTime.ToShortTimeString()) @(msg.SenderName): @msg.Text</p>
+            }
+        }
+
+    </div>
         <div id="users">
 
         @foreach(var v in Model.UsersInRoom)

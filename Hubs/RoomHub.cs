@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
 using ChatApp.Util;
+
 using ChatApp.Repositories;
 
 namespace ChatApp.Hubs
@@ -55,13 +57,20 @@ namespace ChatApp.Hubs
         }
         public async Task NewMessage(string message)
         {
-            var usersRepo = this.GetService<IUsersRepository>();
+            var usersRepo = this.GetService<IRoomUsersRepository>();
+            var roomsRepo = this.GetService<IRoomsRepository>();
+
             var httpContext = Context.GetHttpContext();
             string userName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
-            if(user.RoomUser is null) Context.GetHttpContext().Abort();
-            
-            string roomName = user.RoomUser.Room.Name;
+            string roomName = user.Room.Name;
+            var room = await roomsRepo.GetRoomAsync(roomName);
+
+            room.LastMessages.Add(new() { Text=message, SenderName = userName, DateTime = DateTime.Now});
+            if(room.LastMessages.Count>14) room.LastMessages.Remove(room.LastMessages.First());
+
+            if (user is null) Context.GetHttpContext().Abort();
+
             string time = DateTime.Now.ToShortTimeString();
             var connectionIds = await this.GetIds(roomName);
             await Clients.Clients(connectionIds).SendAsync("NewMessage", time, userName, message.Trim());

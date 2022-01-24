@@ -43,6 +43,7 @@ namespace ChatApp
             services.AddTransient<IRoomsRepository, RoomsRepository>();
             services.AddTransient<IRoomUsersRepository, RoomUsersRepository>();
             services.AddTransient<IBanInfoRepository, BanInfoRepository>();
+            services.AddTransient<IGCRepository, GCRepository>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

@@ -4,11 +4,17 @@
 
 <div id="users">
 
-    @foreach(var v in Model.Users)
+    @foreach(var user in Model.Users)
     {
-        <p id="@v.UserName">Пользователь @v.UserName</p>
+        <p id="@user.UserName">Пользователь @user.UserName</p>
     }
 </div>
-<div id="messages"></div>
+<div id="messages">
+    @foreach(var msg in Model.LastMessages){
+        <p>@(msg.DateTime.ToShortTimeString()) 
+            @(msg.SenderName):@msg.Text
+        </p>
+    }
+</div>
 
 <script src="~/js/global-signalr.js"></script>
