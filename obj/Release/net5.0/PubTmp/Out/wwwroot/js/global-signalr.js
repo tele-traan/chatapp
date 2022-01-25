@@ -16,6 +16,10 @@ document.getElementById("btn").addEventListener("click", (e) => {
    input.value = "";
    connection.invoke("NewMessage", msg);
 });
+connection.on("ThisAccOnNewTab", () => {
+    alert("Один аккаунт может находиться в чате только в одной вкладке");
+    window.location.href = "/Home/Index";
+});
 connection.on("NewMessage", (time, sender, message) => {
     let elem = document.createElement("p");
     elem.innerText = `${time} ${sender}: ${message}`;

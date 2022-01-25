@@ -1,18 +1,26 @@
-﻿@model BaseViewModel;
-
-<h1>@Model.Message</h1>
-<h2 style="display:inline-block;">Войти в глобальный чат:</h2>
-<a class="btn btn-outline-success" href="/Home/Chat">Войти</a>
-
-<hr />
-<h2 style="display:inline-block;">Создать свою комнату</h2> 
-<form action="/Room/Index" method="post">
-<input type="submit" class="btn btn-outline-success" value="Создать"/>
-<input type="hidden" name="type" value="create" />
-</form>
-<hr />
-<h2 style="display:inline-block;">Войти в существующую комнату</h2>
-<form action="/Room/Index" method="post">
-<input type="submit" class="btn btn-outline-success" value="Войти"/>
-<input type="hidden" name="type" value="connect" />
-</form>
+﻿@model BaseViewModel
+<style>
+    hr{
+        margin:0px;
+        height: 2px;
+        color:black;
+    }
+</style>
+<div id="div-main">
+    <h1>@Model.Message</h1>
+    <form action="/Home/Chat" method="get">
+    <input type="submit" class="btn-home" href="/Home/Chat" value="Войти в глобальный чат"/>
+    </form>
+    <form action="/Room/Index" method="post">
+    <input type="submit" class="btn-home" value="Создать свою комнату"/>
+    <input type="hidden" name="type" value="create" />
+    </form> 
+    <form action="/Room/Index" method="post">
+    <input type="submit" class="btn-home" value="Войти в существующую комнату"/>
+    <input type="hidden" name="type" value="connect" />
+    </form>
+</div>
+<div id="home-btns">
+    <a id="manage-btn" href="/Manage/Index" type="submit">Управление аккаунтом</a>
+    <a id="github-btn" href="https://github.com/tele-traan/ChatApp">GitHub-репозиторий сайта</a>
+</div>

@@ -49,7 +49,7 @@ namespace ChatApp.Models
         }
         public override bool Equals(object obj)
         {
-            if (obj is null || obj is not Room) return false;
+            if (obj is not Room) return false;
             Room other = obj as Room;
             return other.RoomId == RoomId
                 && other.Name == Name;

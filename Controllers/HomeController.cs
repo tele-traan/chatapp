@@ -35,11 +35,8 @@ namespace ChatApp.Controllers
         [HttpPost]
         public IActionResult Index([FromForm]string msg)
         {
-            ViewData["Username"] = User.Identity.Name;
-            int gcUsersCount = _gcUsersRepo.GetAllUsers().Count();
-            int roomUsersCount = _roomUsersRepo.GetAllUsers().Count();
             var model = new BaseViewModel { 
-                Message = msg ?? $"На данный момент в основном чате {gcUsersCount} человек, в комнатах {roomUsersCount} человек"};
+                Message = msg ?? $"Привет, {User.Identity.Name}"};
             return View(model);
         }
         public async Task<IActionResult> Chat()

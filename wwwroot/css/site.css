@@ -1,4 +1,9 @@
-﻿nav {
+﻿body{
+    margin:0px;
+    height:100%;
+    overflow-x:hidden;
+}
+nav {
     background-color: #28a745;
 }
 p{
@@ -9,6 +14,9 @@ input[type="text"], input[type="password"] {
     border: 1px solid #28a745;
     border-radius: 3px;
 }
+#render{
+    height:100%;
+}
 #div-main {
     text-align: center;
     width: 100%;
@@ -16,6 +24,58 @@ input[type="text"], input[type="password"] {
 }
 #users::before{
     content:'';
+}
+.btn-home {
+    width: 100%;
+    height: 100%;
+    font-size: xx-large;
+    background-color: #28a745;
+    color: white;
+    border: 2px lightgray solid; 
+    border-left:none;
+    border-right:none;
+    margin:0px;
+    text-decoration: none;
+    transition: ease-in-out 172ms;
+}
+.btn-home:hover {
+    background-color: white;
+    color: #28a745;
+    border: 2px #28a745 solid;
+    border-right:none;
+    border-left:none;
+}
+#home-btns{
+    display:flex;
+    margin:0;
+    height:100%;
+    width:100%;
+}
+#manage-btn, #github-btn{
+    flex: 1;
+    font-size: xx-large;
+    border: 2px lightgray solid;
+    background-color: #28a745;
+    color:white;
+    text-decoration:none;
+    transition: ease-in-out 172ms;
+}
+#manage-btn:hover, #github-btn:hover {
+    border: 2px #28a745 solid;
+    background-color:white;
+    color: #28a745;
+}
+#manage-btn {
+    border-left: none;
+}
+#manage-btn:hover {
+    border-left: none;
+}
+#github-btn{
+    border-right:none;
+}
+#github-btn:hover{
+    border-right:none;
 }
 #manage{
     vertical-align:central;
@@ -39,6 +99,7 @@ input[type="text"], input[type="password"] {
 .nav-custom {
     margin-top: 10%;
     margin-left: 10%;
+    margin-right: 2px;
     padding: 2px;
     white-space: nowrap;
     margin-left: 10%;

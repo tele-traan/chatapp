@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -74,11 +75,17 @@ namespace ChatApp.Controllers
                 {
                     if (this.GetHash(model.Password, user.Salt) == user.PasswordHash)
                     {
-                        user.UserName = model.UserName;
-                        _usersRepo.UpdateUser(user);
-                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                        await this.Authenticate(model.UserName);
-                        msg = "Имя успешно изменено";
+                        if (!new Regex(@"(?!\s)([0-9]|[а-яА-Я]|[a-zA-Z]){3,21}").IsMatch(model.UserName))
+                        {
+                            msg = "Имя должно содержать от 3 до 20 символов, не иметь пробелов, состоять из цифр или букв";
+                        }
+                        else {
+                            user.UserName = model.UserName;
+                            _usersRepo.UpdateUser(user);
+                            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                            await this.Authenticate(model.UserName);
+                            msg = "Имя успешно изменено";
+                        }
                     }
                     else msg = "Ошибка. Проверьте правильность введённых данных";
                 }
@@ -103,9 +110,16 @@ namespace ChatApp.Controllers
                 bool isAuthenticated = this.GetHash(model.OldPassword, user.Salt) == user.PasswordHash;
                 if (isAuthenticated)
                 {
-                    user.PasswordHash = model.NewPassword;
-                    _usersRepo.UpdateUser(user);
-                    msg = "Пароль успешно изменён";
+                    if (!new Regex(@"(?!\s)(?=.*([a-zA-Z]|[а-яА-Я]))(?=.*[0-9]).{6,30}").IsMatch(model.NewPassword))
+                    {
+                        msg = "Ошибка. Пароль должен иметь длину от 6 до 30 символов, иметь цифры и буквы, не иметь пробелов";
+                    }
+                    else
+                    {
+                        user.PasswordHash = model.NewPassword;
+                        _usersRepo.UpdateUser(user);
+                        msg = "Пароль успешно изменён";
+                    }
                 }
                 else msg = "Ошибка. Проверьте правильность введённых данных";
             }

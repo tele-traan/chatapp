@@ -43,13 +43,6 @@ namespace ChatApp.Controllers
                 return this.RedirectToPostAction(actionName: "Register",
                     controllerName: "Auth",
                     new() { {"msg", "Ошибка. Войдите снова" } });
-
-            /*if (user.RoomUser is not null)
-                user.RoomUser = null;
-                return this.RedirectToPostAction(actionName: "Index",
-                    controllerName: "Home",
-                    new() { { "msg", "С одного аккаунта можно находиться только в одной комнате" } });*/
-            
             
             var roomList = _roomsRepo.GetAllRooms().ToList();
             return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
