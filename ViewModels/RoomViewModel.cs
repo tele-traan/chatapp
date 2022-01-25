@@ -12,9 +12,9 @@ namespace ChatApp.Models
         public string Type { get; set; }
         public bool IsPrivate { get; set; }
         public string RoomPassword { get; set; }
-        public IEnumerable<Room> Rooms { get; set; }
-        public IEnumerable<RoomUser> UsersInRoom { get; set; }
-        public IEnumerable<User> RoomAdmins { get; set; }
+        public List<Room> Rooms { get; set; }
+        public List<RoomUser> UsersInRoom { get; set; }
+        public List<User> RoomAdmins { get; set; }
         public List<Message> LastMessages { get; set; }
     }
 }

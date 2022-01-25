@@ -40,15 +40,15 @@ namespace ChatApp.Hubs
             var user = usersRepo.GetUser(userName);
             user.GlobalChatUser = null;
             usersRepo.UpdateUser(user);
-            
             await base.OnDisconnectedAsync(exception);
         }
         public async Task NewMessage(string message)
         {
             var gcRepo = this.GetService<IGCRepository>();
             string userName = Context.GetHttpContext().User.Identity.Name;
+            var user = this.GetService<IGCUsersRepository>().GetUser(userName);
+            if (user.ConnectionId != Context.ConnectionId) Context.Abort();
             var time = DateTime.Now;
-
             gcRepo.AddMessage(new() { Text = message, SenderName = userName, DateTime = time });
             await Clients.All.SendAsync("NewMessage", time.ToShortTimeString(), userName, message.Trim());
         }

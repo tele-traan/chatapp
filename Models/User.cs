@@ -46,7 +46,7 @@ namespace ChatApp.Models
         }
         public override bool Equals(object obj)
         {
-            if (obj is not User) return false;
+            if (obj is null || obj is not User) return false;
 
             User other = obj as User;
 

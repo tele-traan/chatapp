@@ -63,13 +63,16 @@ namespace ChatApp.Hubs
             var httpContext = Context.GetHttpContext();
             string userName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
+            if (user is null)
+            {
+                Context.Abort();
+                return;
+            }
             string roomName = user.Room.Name;
             var room = await roomsRepo.GetRoomAsync(roomName);
 
             room.LastMessages.Add(new() { Text=message, SenderName = userName, DateTime = DateTime.Now});
             if(room.LastMessages.Count>14) room.LastMessages.Remove(room.LastMessages.First());
-
-            if (user is null) Context.GetHttpContext().Abort();
 
             string time = DateTime.Now.ToShortTimeString();
             var connectionIds = await this.GetIds(roomName);

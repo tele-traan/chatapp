@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
+using ChatApp.Hubs;
 using ChatApp.Util;
 using ChatApp.Models;
 using ChatApp.Repositories;
@@ -18,11 +20,16 @@ namespace ChatApp.Controllers
         private readonly IUsersRepository _usersRepo;
         private readonly IRoomsRepository _roomsRepo;
         private readonly IBanInfoRepository _bansRepo;
-        public RoomController(IUsersRepository repo, IRoomsRepository roomsRepo, IBanInfoRepository bansRepo)
+        private readonly IHubContext<RoomHub> _roomHub;
+        public RoomController(IUsersRepository repo, 
+            IRoomsRepository roomsRepo, 
+            IBanInfoRepository bansRepo,
+            IHubContext<RoomHub> roomHub)
         {
             _usersRepo = repo;
             _roomsRepo = roomsRepo;
             _bansRepo = bansRepo;
+            _roomHub = roomHub;
         }
         [HttpGet]
         [HttpPost]
@@ -31,14 +38,18 @@ namespace ChatApp.Controllers
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
             var user = _usersRepo.GetUser(userName);
+
             if (user is null)
                 return this.RedirectToPostAction(actionName: "Register",
                     controllerName: "Auth",
                     new() { {"msg", "Ошибка. Войдите снова" } });
-            if (user.RoomUser is not null)
+
+            /*if (user.RoomUser is not null)
+                user.RoomUser = null;
                 return this.RedirectToPostAction(actionName: "Index",
                     controllerName: "Home",
-                    new() { { "msg", "С одного аккаунта можно находиться только в одной комнате" } });
+                    new() { { "msg", "С одного аккаунта можно находиться только в одной комнате" } });*/
+            
             
             var roomList = _roomsRepo.GetAllRooms().ToList();
             return View(new RoomViewModel { Type=type, Message = msg, Rooms = roomList });
@@ -49,6 +60,7 @@ namespace ChatApp.Controllers
             {
                 string userName = User.Identity.Name;
                 ViewData["Username"] = userName;
+                var user = _usersRepo.GetUser(userName);
                 var room = await _roomsRepo.GetRoomAsync(model.RoomName);
                 if (room is null)
                 {
@@ -57,7 +69,6 @@ namespace ChatApp.Controllers
                             controllerName: "Room",
                             new() { { "type", "create" }, { "msg", "Вы не ввели пароль от комнаты" } });
 
-                    var user = _usersRepo.GetUser(userName);
                     room = new() { Name = model.RoomName, Creator = user };
                     if (model.IsPrivate)
                     {
@@ -65,27 +76,31 @@ namespace ChatApp.Controllers
                             return this.RedirectToPostAction(
                                 actionName: "Index",
                                 controllerName: "Room",
-                                new() { {"msg", "Пароль должен содержать буквы и цифры, а также иметь длину от 6 до 30 символов, не иметь пробелов" } }
-                            );
+                                new() { {"msg", "Пароль должен содержать буквы и цифры, а также иметь длину от 6 до 30 символов, не иметь пробелов" } });
                         room.IsPrivate = true;
                         room.PasswordHash = model.RoomPassword;
                     }
                     await _roomsRepo.AddRoomAsync(room);
-
+                    if (user.RoomUser is not null)
+                    {
+                        await _roomHub.Clients.Clients(user.RoomUser.Room.Name)
+                            .SendAsync("MemberLeft", userName);
+                        await _roomHub.Clients.Client(user.RoomUser.ConnectionId)
+                            .SendAsync("ThisAccOnNewTab");
+                        user.RoomUser = null;
+                    }
                     user.RoomUser = new() { Room = room, UserName = userName, IsAdmin = true };
                     _usersRepo.UpdateUser(user);
                     room = await _roomsRepo.GetRoomAsync(model.RoomName);
                     room.Admins.Add(user);
                     _roomsRepo.UpdateRoom(room);
 
-                    var list = room.RoomUsers;
-                    list.Remove(list.FirstOrDefault(u => u.Equals(user.RoomUser)));
                     var obj = new RoomViewModel
                     {
                         UserName = userName,
                         RoomName = model.RoomName,
                         Message = $"Комната {model.RoomName}",
-                        UsersInRoom = list,
+                        UsersInRoom = new(),
                         RoomAdmins = room.Admins,
                         LastMessages = new()
                     };
@@ -121,7 +136,6 @@ namespace ChatApp.Controllers
                         return this.RedirectToPostAction(actionName: "Index",
                             controllerName: "Room",
                             new() { { "msg", msg } });
-                      
                     }
                     else
                     {
@@ -133,24 +147,34 @@ namespace ChatApp.Controllers
                 if (room.IsPrivate && model.RoomPassword is not null)
                 {
                     bool isAuthenticated = this.GetHash(model.RoomPassword, room.Salt) == room.PasswordHash;
-                    if (!isAuthenticated) return this.RedirectToPostAction(actionName: "Index",
-                        controllerName: "Room",
-                        new() { { "msg", "Неверный пароль от комнаты" } });
+                    if (!isAuthenticated)
+                        return this.RedirectToPostAction(actionName: "Index",
+                            controllerName: "Room",
+                            new() { { "msg", "Неверный пароль от комнаты" } });
                 }
-                else if(room.IsPrivate) return this.RedirectToPostAction(actionName: "Index", 
-                    controllerName: "Room", 
-                    new(){ { "msg", "Вы не ввели пароль" } });
+                else if(room.IsPrivate) 
+                    return this.RedirectToPostAction(actionName: "Index", 
+                        controllerName: "Room", 
+                        new(){ { "msg", "Вы не ввели пароль" } });
+
                 bool isAdmin = room.ContainsAdmin(userName);
+                if(user.RoomUser is not null)
+                {
+                    await _roomHub.Clients.Clients(user.RoomUser.Room.Name)
+                        .SendAsync("MemberLeft", userName);
+                    await _roomHub.Clients.Client(user.RoomUser.ConnectionId)
+                        .SendAsync("ThisAccOnNewTab");
+                }
                 user.RoomUser = new() { Room = room, UserName = userName, IsAdmin = isAdmin };
                 _usersRepo.UpdateUser(user);
                 var list = room.RoomUsers;
                 list.Remove(list.FirstOrDefault(u=>u.Equals(user.RoomUser)));
-                var obj = new RoomViewModel { 
-                    UserName = model.UserName, 
+                var obj = new RoomViewModel {
+                    UserName = model.UserName,
                     RoomName = model.RoomName, 
                     UsersInRoom = list,
                     RoomAdmins = room.Admins,
-                    LastMessages = room.LastMessages};
+                    LastMessages = room.LastMessages.OrderByDescending(r=>r.DateTime).ToList()};
                 return View(viewName: "Room", obj);
             }
             else

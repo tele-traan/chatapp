@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using ChatApp.Util;
 using ChatApp.Models;

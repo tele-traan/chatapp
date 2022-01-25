@@ -2,10 +2,7 @@
 
 connection.on("ErrorLogging", msg => {
     alert(msg);
-    setTimeout(() => {
-        window.location.href =
-            `/Room/Index?type=connect`;
-    }, 3500);
+    window.location.href = `/Room/Index?type=connect`;
 });
 
 connection.on("NewMessage", (time, sender, msg) => {
@@ -13,9 +10,11 @@ connection.on("NewMessage", (time, sender, msg) => {
     p.innerText = `${time} ${sender}: ${msg}`;
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(p, firstElem);
-
 });
-
+connection.on("ThisAccOnNewTab", () => {
+    alert("Один аккаунт может находиться в чате только в одной вкладке");
+    window.location.href = "/Home/Index";
+});
 connection.on("MemberJoined", (memberName,isAdmin) => {
     let elem = document.createElement("p");
     elem.style.backgroundColor = "lightgreen";
@@ -58,7 +57,7 @@ connection.on("UserBanned", (admin, reason, time) => {
     $('#render').fadeOut();
     connection.stop();
     alert(`Администратор ${admin} забанил вас в этой комнате до ${time} по причине: "${reason}". Переадресация через 5 секунд...`);
-    setTimeout(() => window.location.href = "/Home/Index", 5000);
+    window.location.href = "/Home/Index";
 });
 
 connection.on("UserOpped", creator => {
@@ -82,8 +81,8 @@ document.getElementById("btnsendmsg").addEventListener("click", e => {
 });
 
 connection.on("RoomDeleted", () => {
-    alert("Эта комната удалена создателем. Переадресация через 5 секунд...");
-    setTimeout(()=>window.location.href="/Home/Index", 5000)
+    alert("Эта комната удалена её создателем.");
+    window.location.href = "/Home/Index";
 });
 
 connection.start();
