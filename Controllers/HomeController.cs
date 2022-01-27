@@ -47,9 +47,8 @@ namespace ChatApp.Controllers
             var users = _gcUsersRepo.GetAllUsers().ToList();
             if (user.GlobalChatUser is not null)
             {
-                Task t = _chatHub.Clients.
+                await _chatHub.Clients.
                     Client(user.GlobalChatUser.ConnectionId).SendAsync("ThisAccOnNewab");
-                t.Wait();
                 await _chatHub.Clients.All.SendAsync("MemberLeft", user.UserName);
 
                 var gcUser = users.FirstOrDefault(u => u.Equals(user.GlobalChatUser));

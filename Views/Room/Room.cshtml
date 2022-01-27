@@ -3,27 +3,31 @@
 <div id="div-main">
     <h1>@(Model.Message=="" ? $"Комната {Model.RoomName}" : Model.Message)</h1>
     <input type="text" id="msg" />
-    <input type="submit" id="btnsendmsg" value="Отправить" /> 
+    <input type="submit" id="btnsendmsg" class="btn btn-outline-success" value="Отправить" /> 
     <br />
     <div id="messages">
             @foreach(var msg in Model.LastMessages)
             {
-                <p>@(msg.DateTime.ToShortTimeString()) @(msg.SenderName): @msg.Text</p>
+                string text = "";
+                    text += $"{msg.DateTime.ToShortTimeString()} ";
+                if (!string.IsNullOrEmpty(msg.SenderName)) 
+                    text += $"{msg.SenderName}: ";
+                text += msg.Text;
+                <p style="background-color: @(msg.BgColor)">@text</p>
             }
     </div>
-        <div id="users">
-
-        @foreach(var v in Model.UsersInRoom)
+    <div id="users">
+    @foreach(var v in Model.UsersInRoom)
+        {
+            if (Model.RoomAdmins.FirstOrDefault(a=>a.Equals(v.User))!=null)
             {
-                if (Model.RoomAdmins.FirstOrDefault(a=>a.Equals(v.User))!=null)
-                {
-                    <p style="color:crimson;" id="@v.UserName">Админ @v.UserName</p>
-                }
-                else
-                {
-                    <p id="@v.UserName">@v.UserName</p>
-                }
+                <p style="color:crimson;" id="@v.UserName">Админ @v.UserName</p>
             }
-        </div>
+            else
+            {
+                <p id="@v.UserName">@v.UserName</p>
+            }
+        }
+    </div>
 </div>
 <script src="~/js/room-signalr.js" asp-append-version="true"></script> 

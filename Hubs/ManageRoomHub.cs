@@ -135,12 +135,15 @@ namespace ChatApp.Hubs
 
             string adminName = httpContext.User.Identity.Name; 
             var user = usersRepo.GetUser(userName);
-            if (room.ContainsAdmin(adminName) && room.ContainsUser(userName) && !room.ContainsAdmin(userName))
+            if (room.Creator.Equals(usersRepo.GetUser(adminName))
+                && room.ContainsUser(userName) 
+                && !room.ContainsAdmin(userName))
             {
                 user.RoomUser.IsAdmin = true;
                 user.ManagedRooms.Add(room);
                 usersRepo.UpdateUser(user);
-                await roomHubContext.Clients.Client(user.RoomUser.ConnectionId).SendAsync("UserOpped", adminName);
+                await roomHubContext.Clients.Client(user.RoomUser.ConnectionId)
+                    .SendAsync("SystemMessage", $"Создатель {adminName} выдал вам права администратора", "lightgreen");
                 await Clients.Caller.SendAsync("OpResult", "success", userName);
             }
             else await Clients.Caller.SendAsync("OpResult", "failure", "");
@@ -167,13 +170,14 @@ namespace ChatApp.Hubs
                 bool isRemoved = user.ManagedRooms.Remove(room);
                 if (isRemoved)
                 {
-                    await Clients.Caller.SendAsync("OpResult", "success", userName);
-                    await roomHubContext.Clients.Client(user.RoomUser.ConnectionId).SendAsync("UserDeopped", adminName);
+                    await Clients.Caller.SendAsync("DeopResult", "success", userName);
+                    await roomHubContext.Clients.Client(user.RoomUser.ConnectionId)
+                        .SendAsync("SystemMessage", $"Создатель {adminName} отнял у вас права администратора", "red");
                     usersRepo.UpdateUser(user);
                 }
-                else await Clients.Caller.SendAsync("OpResult", "failure", "");
+                else await Clients.Caller.SendAsync("DeopResult", "failure", "");
             }
-            await Clients.Caller.SendAsync("OpResult", "failure", userName);
+            await Clients.Caller.SendAsync("DeopResult", "failure", userName);
 
         }
         public async Task Kick(string userName)
@@ -192,7 +196,8 @@ namespace ChatApp.Hubs
             var user = usersRepo.GetUser(userName);
             if (room.ContainsAdmin(adminName) && room.ContainsUser(userName))
             {
-                await roomHubContext.Clients.Client(user.RoomUser.ConnectionId).SendAsync("UserKicked", adminName);
+                await roomHubContext.Clients.Client(user.RoomUser.ConnectionId)
+                    .SendAsync("SystemMessage", $"Вы были кикнуты из комнаты админом {adminName}", "red");
                 roomUsersRepo.RemoveUser(user.RoomUser);
                 await Clients.Caller.SendAsync("KickResult", "success", userName);
             }
@@ -218,23 +223,23 @@ namespace ChatApp.Hubs
                     && days > 0
                     && !room.Creator.Equals(user))
                 {
-                    DateTime until = DateTime.Now.AddDays(days);
+                DateTime until = DateTime.Now.AddDays(days);
 
-                    if (string.IsNullOrEmpty(reason)) reason = "Без причины.";
-                    string connectionId = user.RoomUser.ConnectionId;
+                if (string.IsNullOrEmpty(reason)) reason = "Без причины.";
+                string connectionId = user.RoomUser.ConnectionId;
 
-                    await Clients.Caller.SendAsync("BanResult", "success", userName);
+                await Clients.Caller.SendAsync("BanResult", "success", userName);
 
-                    bansRepo.AddBanInfo(until, reason, adminName, user, room);
-                    room.BannedUsers.Add(user);
-                    roomUsersRepo.RemoveUser(user.RoomUser);
-                    usersRepo.UpdateUser(user);
-                    roomsRepo.UpdateRoom(room);
+                bansRepo.AddBanInfo(until, reason, adminName, user, room);
+                room.BannedUsers.Add(user);
+                roomUsersRepo.RemoveUser(user.RoomUser);
+                usersRepo.UpdateUser(user);
+                roomsRepo.UpdateRoom(room);
 
+                string msg = $"Вы были забанены администратором {adminName} по причине {reason}" +
+                    $" до {until.ToShortDateString()} {until.ToShortTimeString()}";
                 await roomHubContext.Clients.Client(connectionId)
-                .SendAsync("UserBanned", adminName, reason,
-                $"{until.ToShortDateString()} {until.ToShortTimeString()}");
-
+                .SendAsync("SystemMessage", msg, "red");
             }
             else await Clients.Caller.SendAsync("BanResult", "failure", "");
         }

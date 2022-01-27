@@ -25,6 +25,7 @@ namespace ChatApp.Repositories
             .Include(r => r.BannedUsers)
             .Include(r => r.Creator)
             .Include(r => r.BanInfos)
+            .Include(r=>r.LastMessages)
             .FirstOrDefaultAsync(r => r.RoomId == roomId);
         public async Task<Room> GetRoomAsync(string roomName) => await _context.Rooms
             .Include(r => r.RoomUsers)
@@ -32,6 +33,7 @@ namespace ChatApp.Repositories
             .Include(r => r.BannedUsers)
             .Include(r => r.Creator)
             .Include(r => r.BanInfos)
+            .Include(r => r.LastMessages)
             .FirstOrDefaultAsync(r => r.Name == roomName);
         public async Task<bool> AddRoomAsync(Room room)
         {

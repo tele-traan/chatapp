@@ -8,6 +8,7 @@ namespace ChatApp.Models
 
         public DateTime DateTime { get; set; }
         public string SenderName { get; set; }
+        public string BgColor { get; set; }
         public string Text { get; set; }
     }
 }

@@ -1,17 +1,10 @@
 ﻿var connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
 
-var pinger = new signalR.HubConnectionBuilder().withUrl("/pinghub").build();
-pinger.start();
-
-document.getElementById("btn").addEventListener("click", (e) => {
+document.getElementById("btnsendmsg").addEventListener("click", (e) => {
    e.preventDefault();
    let input = document.getElementById("msg");
    let msg = input.value;
-   if (msg == "" || msg == " " || msg == null) {
-            document.getElementById("msg").style.borderColor = "red";
-            alert("Сообщение не может быть пустым");
-            return;
-        }
+   if (msg == "" || msg == " " || msg == null) return;
    document.getElementById("msg").style.borderColor = "gray";
    input.value = "";
    connection.invoke("NewMessage", msg);
@@ -26,10 +19,17 @@ connection.on("NewMessage", (time, sender, message) => {
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(elem, firstElem);
 });
-connection.on("MemberJoined", username => {
+connection.on("SystemMessage", (message,color) => {
+    let elem = document.createElement("p");
+    elem.innerText = message;
+    elem.style.color = color;
+    let div = document.getElementById("messages");
+    div.insertBefore(elem, div.firstChild);
+});
+connection.on("MemberJoined", (username, time) => {
     let elem = document.createElement("p");
     elem.style.backgroundColor = "lightgreen";
-    elem.innerText = `Пользователь ${username} подключился к чату`;
+    elem.innerText = `${time} Пользователь ${username} подключился к чату`;
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(elem, firstElem);
 
@@ -38,10 +38,10 @@ connection.on("MemberJoined", username => {
     p.textContent = `Пользователь ${username}`;
     document.getElementById("users").appendChild(p);
 });
-connection.on("MemberLeft", username => {
+connection.on("MemberLeft", (username,time) => {
     let elem = document.createElement("p");
     elem.style.backgroundColor = "red";
-    elem.innerText = `Пользователь ${username} покинул чат`;
+    elem.innerText = `${time} Пользователь ${username} покинул чат`;
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(elem, firstElem);
 

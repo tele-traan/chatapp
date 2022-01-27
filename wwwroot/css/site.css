@@ -9,6 +9,14 @@ nav {
 p{
     margin:0;
 }
+#msg{
+    width:50%;
+    float:left;
+}
+#btnsendmsg {
+    margin-left: 1%;
+    float: left;
+}
 input[type="text"], input[type="password"] {
     width: 20%;
     border: 1px solid #28a745;
@@ -128,9 +136,13 @@ input[type="text"], input[type="password"] {
     float:left;
     margin-right:0px;
     background-image: linear-gradient(105deg, white, darkgray);
+    text-align:left;
     border: 1px solid black;
 }
-
+#messages p{
+    float:left;
+    width:100%;
+}
 a.navbar-brand {
   white-space: normal;
   text-align: center;

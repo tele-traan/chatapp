@@ -2,7 +2,7 @@
 
 connection.on("ErrorLogging", msg => {
     alert(msg);
-    window.location.href = `/Room/Index?type=connect`;
+    window.location.href = `/Home/Index`;
 });
 
 connection.on("NewMessage", (time, sender, msg) => {
@@ -11,16 +11,23 @@ connection.on("NewMessage", (time, sender, msg) => {
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(p, firstElem);
 });
+connection.on("SystemMessage", (color, message) => {
+    let elem = document.createElement("p");
+    elem.innerText = message;
+    elem.style.color = color;
+    let div = document.getElementById("messages");
+    div.insertBefore(elem, div.firstChild);
+});
 connection.on("ThisAccOnNewTab", () => {
     alert("Один аккаунт может находиться в чате только в одной вкладке");
     window.location.href = "/Home/Index";
 });
-connection.on("MemberJoined", (memberName,isAdmin) => {
+connection.on("MemberJoined", (memberName, isAdmin, time) => {
     let elem = document.createElement("p");
     elem.style.backgroundColor = "lightgreen";
     if (isAdmin) {
-        elem.textContent = `Админ ${memberName} подключился к комнате`;
-    } else elem.textContent = `Пользователь ${memberName} подключился к комнате`;
+        elem.textContent = `${time} Админ ${memberName} подключился к комнате`;
+    } else elem.textContent = `${time} Пользователь ${memberName} подключился к комнате`;
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(elem, firstElem);
 
@@ -32,13 +39,12 @@ connection.on("MemberJoined", (memberName,isAdmin) => {
     } else p.textContent = `${memberName}`;
     document.getElementById("users").appendChild(p);
 });
-
-connection.on("MemberLeft", (memberName, isAdmin) => {
+connection.on("MemberLeft", (memberName, isAdmin, time) => {
     let p = document.createElement("p");
     p.style.backgroundColor = "crimson";
     if (isAdmin) {
-        p.innerText = `Админ ${memberName} покинул комнату`;
-    } else p.innerText = `Пользователь ${memberName} покинул комнату`;
+        p.innerText = `${time} Админ ${memberName} покинул комнату`;
+    } else p.innerText = `${time} Пользователь ${memberName} покинул комнату`;
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(p, firstElem);
 
@@ -77,6 +83,18 @@ document.getElementById("btnsendmsg").addEventListener("click", e => {
     } else {
         alert("Сообщение не может быть пустым");
         return;
+    }
+});
+
+document.addEventListener("keypress", e => {
+    if (e.key == "Enter") {
+        e.stopPropagation();
+        var input = document.getElementById("msg");
+        var msg = document.getElementById("msg").value.trim();
+        if (msg != "" && msg != null && msg != " ") {
+            input.value = "";
+            connection.invoke("NewMessage", msg);
+        }
     }
 });
 

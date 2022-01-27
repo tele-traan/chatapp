@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
 using ChatApp.Util;
-
+using ChatApp.Models;
 using ChatApp.Repositories;
 
 namespace ChatApp.Hubs
@@ -17,6 +16,7 @@ namespace ChatApp.Hubs
         public async override Task OnConnectedAsync()
         {
             var usersRepo = this.GetService<IUsersRepository>();
+            var roomsRepo = this.GetService<IRoomsRepository>();
             string userName = Context.GetHttpContext().User.Identity.Name;
             var user = usersRepo.GetUser(userName);
 
@@ -28,9 +28,16 @@ namespace ChatApp.Hubs
             {
                 user.RoomUser.ConnectionId = Context.ConnectionId;
                 usersRepo.UpdateUser(user);
+
+                var room = await roomsRepo.GetRoomAsync(roomName);
+                var time = DateTime.Now;
+                Message msg = new()
+                { Text = $"Пользователь {userName} подключился к комнате", DateTime = time, SenderName=null, BgColor = "lightgreen" };
+                if (user.RoomUser.IsAdmin) msg.Text = $"Админ {userName} подключился к комнате";
+                this.AddLastMessage(room, msg);
                 var connectionIds = await this.GetIds(roomName);
                 await Clients.Clients(connectionIds)
-                    .SendAsync("MemberJoined", userName, user.RoomUser.IsAdmin);
+                    .SendAsync("MemberJoined", userName, user.RoomUser.IsAdmin, time.ToShortTimeString());
             }
             else
             {
@@ -42,16 +49,23 @@ namespace ChatApp.Hubs
         public async override Task OnDisconnectedAsync(Exception exception)
         {
             var roomUsersRepo = this.GetService<IRoomUsersRepository>();
+            var roomsRepo = this.GetService<IRoomsRepository>();
             string userName = Context.GetHttpContext().User.Identity.Name;
             var user = roomUsersRepo.GetUser(userName);
             if (user is not null) 
             {
                 string roomName = user.Room.Name;
-
+                var room = await roomsRepo.GetRoomAsync(roomName);
                 roomUsersRepo.RemoveUser(user);
+
+                Message msg = new() 
+                { Text = $"Пользователь {userName} покинул комнату", DateTime = DateTime.Now, SenderName=null, BgColor = "crimson" };
+                if (user.IsAdmin) msg.Text = $"Админ {userName} покинул комнату";
+                this.AddLastMessage(room, msg);
+
                 var connectionIds = await this.GetIds(roomName);
                 await Clients.Clients(connectionIds)
-                    .SendAsync("MemberLeft", userName, user.IsAdmin);
+                    .SendAsync("MemberLeft", userName, user.IsAdmin, DateTime.Now.ToShortTimeString());
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -70,13 +84,12 @@ namespace ChatApp.Hubs
             }
             string roomName = user.Room.Name;
             var room = await roomsRepo.GetRoomAsync(roomName);
+            var time = DateTime.Now;
+            this.AddLastMessage(room, new() { Text = message, SenderName = userName, DateTime = time, BgColor = "transparent" });
 
-            room.LastMessages.Add(new() { Text=message, SenderName = userName, DateTime = DateTime.Now});
-            if(room.LastMessages.Count>14) room.LastMessages.Remove(room.LastMessages.First());
-
-            string time = DateTime.Now.ToShortTimeString();
             var connectionIds = await this.GetIds(roomName);
-            await Clients.Clients(connectionIds).SendAsync("NewMessage", time, userName, message.Trim());
+            await Clients.Clients(connectionIds)
+                .SendAsync("NewMessage", time.ToShortTimeString(), userName, message.Trim());
         }
     }
 }

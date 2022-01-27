@@ -1,20 +1,25 @@
 ﻿@model ChatViewModel
-<input id="msg" type="text" placeholder="Сообщение" />
-<button class="btn btn-outline-success"id="btn">Отправить</button>
+<div id="div-main">
+    <h1>Глобальный чат</h1>
+    <input id="msg" type="text" placeholder="Сообщение" />
+    <button class="btn btn-outline-success" id="btnsendmsg">Отправить</button>
+    <br />
+    <div id="messages">
+        @foreach(var msg in Model.LastMessages)
+        {
+            string text = $"{msg.DateTime.ToShortTimeString()} ";
+            if (!string.IsNullOrEmpty(msg.SenderName)) 
+                text += $"{msg.SenderName}:";
+            text += msg.Text;
+            <p style="background-color: @(msg.BgColor)">@text</p>
+        }
+    </div>
+    <div id="users">
 
-<div id="users">
-
-    @foreach(var user in Model.Users)
-    {
-        <p id="@user.UserName">Пользователь @user.UserName</p>
-    }
+        @foreach(var user in Model.Users)
+        {
+            <p id="@user.UserName">Пользователь @user.UserName</p>
+        }
+    </div>
 </div>
-<div id="messages">
-    @foreach(var msg in Model.LastMessages){
-        <p>@(msg.DateTime.ToShortTimeString()) 
-            @(msg.SenderName):@msg.Text
-        </p>
-    }
-</div>
-
-<script src="~/js/global-signalr.js"></script>
+<script src="~/js/global-signalr.js" asp-append-version="true"></script>

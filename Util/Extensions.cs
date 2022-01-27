@@ -102,5 +102,14 @@ namespace ChatApp.Util
             => room.Admins.FirstOrDefault(u => u.UserName == userName) is not null;
         public static bool ContainsBanned(this Room room, string userName)
             => room.BannedUsers.FirstOrDefault(u => u.UserName == userName) is not null;
+
+        public static void AddLastMessage(this Hub hub, Room room, Message message)
+        {
+            var httpContext = hub.Context.GetHttpContext();
+            var roomsRepo = httpContext.RequestServices.GetRequiredService<IRoomsRepository>();
+            room.LastMessages.Add(message);
+            if (room.LastMessages.Count > 14) room.LastMessages.Remove(room.LastMessages.First());
+            roomsRepo.UpdateRoom(room);
+        }
     }
 }

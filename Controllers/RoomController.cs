@@ -76,7 +76,7 @@ namespace ChatApp.Controllers
                     await _roomsRepo.AddRoomAsync(room);
                     if (user.RoomUser is not null)
                     {
-                        await _roomHub.Clients.Clients(user.RoomUser.Room.Name)
+                        await _roomHub.Clients.Clients(await this.GetIds(user.RoomUser.Room.Name))
                             .SendAsync("MemberLeft", userName);
                         await _roomHub.Clients.Client(user.RoomUser.ConnectionId)
                             .SendAsync("ThisAccOnNewTab");
@@ -101,11 +101,11 @@ namespace ChatApp.Controllers
                 }
                 else return this.RedirectToPostAction(actionName: "Index",
                     controllerName: "Room",
-                    new() { { "type", "create" }, { "msg", "Комнаты с таким названием не существует" } });
+                    new() { { "type", "create" }, { "msg", "Комнаты с таким именем уже существует" } });
             }
             else return this.RedirectToPostAction(actionName: "Index",
                 controllerName: "Room",
-                new() { { "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
+                new() { {"type", "create" },{ "msg", "Ошибка. Проверьте, все ли поля формы вы заполнили" } });
         }
         public async Task<IActionResult> Connect(RoomViewModel model)
         {
@@ -162,12 +162,13 @@ namespace ChatApp.Controllers
                 _usersRepo.UpdateUser(user);
                 var list = room.RoomUsers;
                 list.Remove(list.FirstOrDefault(u=>u.Equals(user.RoomUser)));
+                var msgs = room.LastMessages.OrderByDescending(r => r.DateTime).ToList();
                 var obj = new RoomViewModel {
                     UserName = model.UserName,
                     RoomName = model.RoomName, 
                     UsersInRoom = list,
                     RoomAdmins = room.Admins,
-                    LastMessages = room.LastMessages.OrderByDescending(r=>r.DateTime).ToList()};
+                    LastMessages = msgs};
                 return View(viewName: "Room", obj);
             }
             else
