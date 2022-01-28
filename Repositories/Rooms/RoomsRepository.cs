@@ -25,6 +25,7 @@ namespace ChatApp.Repositories
             return _context.Rooms
                 .Where(r => r.RoomId == roomId)
                 .Include(r => r.RoomUsers)
+                .ThenInclude(u => u.Room)
                 .Include(r => r.Admins)
                 .Include(r => r.BannedUsers)
                 .Include(r => r.Creator)
@@ -38,6 +39,7 @@ namespace ChatApp.Repositories
             return _context.Rooms
                 .Where(r => r.Name == roomName)
                 .Include(r => r.RoomUsers)
+                .ThenInclude(u=>u.Room)
                 .Include(r => r.Admins)
                 .Include(r => r.BannedUsers)
                 .Include(r => r.Creator)

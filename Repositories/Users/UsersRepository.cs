@@ -40,6 +40,7 @@ namespace ChatApp.Repositories
                 else
                 {
                     var list = _context.RoomUsers.Where(u => u.Room.Equals(room)).Select(u => u.ConnectionId);
+                    if (list.Contains(null)) throw null;
                     _roomHub.Clients.Clients(list).SendAsync("RoomDeleted");
                     _context.Rooms.Remove(room);
                     _context.SaveChanges();
@@ -56,6 +57,7 @@ namespace ChatApp.Repositories
             return _context.Users.Where(u => u.UserName == userName)
                .Include(u => u.GlobalChatUser)
                .Include(u => u.RoomUser)
+               .ThenInclude(u=>u.Room)
                .Include(u => u.ManagedRooms)
                .Include(u => u.RoomsCreated)
                .Include(u => u.RoomsWhereIsBanned)
@@ -65,14 +67,16 @@ namespace ChatApp.Repositories
         public User GetUser(string userName, string password)
         {
             if (!_context.Users.Any(u => u.UserName == userName && u.PasswordHash == password)) return null;
-             return _context.Users.Where(u => u.UserName == userName && u.PasswordHash == password)
-                .Include(u => u.GlobalChatUser)
-                .Include(u => u.RoomUser)
-                .Include(u => u.ManagedRooms)
-                .Include(u => u.RoomsCreated)
-                .Include(u => u.RoomsWhereIsBanned)
-                .Include(u => u.BanInfos)
-                .Single();
+            return _context.Users.Where(u => u.UserName == userName && u.PasswordHash == password)
+               .IgnoreAutoIncludes()
+               .Include(u => u.GlobalChatUser)
+               .Include(u => u.RoomUser)
+               .ThenInclude(r => r.Room)
+               .Include(u => u.ManagedRooms)
+               .Include(u => u.RoomsCreated)
+               .Include(u => u.RoomsWhereIsBanned)
+               .Include(u => u.BanInfos)
+               .Single();
         }
         public void UpdateUser(User user)
         {

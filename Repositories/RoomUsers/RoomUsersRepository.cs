@@ -19,7 +19,7 @@ namespace ChatApp.Repositories
         public RoomUser GetUser(int id)
         {
             if (!_context.RoomUsers.Any(u => u.RoomUserId == id) ) return null;
-            return _context.RoomUsers
+            return _context.RoomUsers.IgnoreAutoIncludes()
                 .Where(u => u.RoomUserId == id)
                 .Include(u => u.Room)
                 .Include(u => u.User)
@@ -28,7 +28,7 @@ namespace ChatApp.Repositories
         public RoomUser GetUser(string userName)
         {
             if (!_context.RoomUsers.Any(u=>u.UserName==userName)) return null;
-            return _context.RoomUsers
+            return _context.RoomUsers.IgnoreAutoIncludes()
                 .Where(u => u.UserName == userName)
                 .Include(u => u.Room)
                 .Include(u => u.User)

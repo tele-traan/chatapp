@@ -16,11 +16,11 @@ namespace ChatApp.Repositories
             _context = context;
         }
         
-        public IEnumerable<GlobalChatUser> GetAllUsers() => _context.GlobalChatUsers.AsNoTracking();
+        public IEnumerable<GlobalChatUser> GetAllUsers() => _context.GlobalChatUsers.IgnoreAutoIncludes().AsNoTracking();
         public GlobalChatUser GetUser(int id)
         {
             if (!_context.GlobalChatUsers.Any(gcu => gcu.GlobalChatUserId == id)) return null; 
-            return _context.GlobalChatUsers
+            return _context.GlobalChatUsers.IgnoreAutoIncludes()
                 .Where(gcu => gcu.GlobalChatUserId == id)
                 .Include(gcu => gcu.User)
                 .Single();
@@ -28,7 +28,7 @@ namespace ChatApp.Repositories
         public GlobalChatUser GetUser(string userName)
         {
             if (!_context.GlobalChatUsers.Any(gcu => gcu.UserName == userName)) return null;
-            return _context.GlobalChatUsers
+            return _context.GlobalChatUsers.IgnoreAutoIncludes()
                 .Where(gcu => gcu.UserName == userName)
                 .Include(gcu => gcu.User)
                 .Single();
