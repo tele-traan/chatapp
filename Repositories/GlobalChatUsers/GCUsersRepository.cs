@@ -15,10 +15,24 @@ namespace ChatApp.Repositories
         {
             _context = context;
         }
-
+        
         public IEnumerable<GlobalChatUser> GetAllUsers() => _context.GlobalChatUsers.AsNoTracking();
-        public GlobalChatUser GetUser(int id) => _context.GlobalChatUsers.FirstOrDefault(u => u.GlobalChatUserId == id);
-        public GlobalChatUser GetUser(string userName) => _context.GlobalChatUsers.FirstOrDefault(u => u.UserName == userName);
+        public GlobalChatUser GetUser(int id)
+        {
+            if (!_context.GlobalChatUsers.Any(gcu => gcu.GlobalChatUserId == id)) return null; 
+            return _context.GlobalChatUsers
+                .Where(gcu => gcu.GlobalChatUserId == id)
+                .Include(gcu => gcu.User)
+                .Single();
+        }
+        public GlobalChatUser GetUser(string userName)
+        {
+            if (!_context.GlobalChatUsers.Any(gcu => gcu.UserName == userName)) return null;
+            return _context.GlobalChatUsers
+                .Where(gcu => gcu.UserName == userName)
+                .Include(gcu => gcu.User)
+                .Single();
+        }
         public void RemoveUser(GlobalChatUser user)
         {
             _context.GlobalChatUsers.Remove(user);

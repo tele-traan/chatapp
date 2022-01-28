@@ -23,19 +23,19 @@ namespace ChatApp.Util
             => hub.Context.GetHttpContext().RequestServices.GetRequiredService<T>();
         public static T GetService<T>(this Controller controller) => 
             controller.HttpContext.RequestServices.GetRequiredService<T>();
-        public async static Task<List<string>> GetIds(this Hub hub, string roomName)
+        public static List<string> GetIds(this Hub hub, string roomName)
         {
             List<string> list = new();
             var roomRepo = hub.GetService<IRoomsRepository>();
-            var room = await roomRepo.GetRoomAsync(roomName);
+            var room = roomRepo.GetRoom(roomName);
             list = room.RoomUsers.Select(u => u.ConnectionId).ToList();
             return list;
         }
-        public async static Task<List<string>> GetIds(this Controller controller, string roomName)
+        public static List<string> GetIds(this Controller controller, string roomName)
         {
             List<string> list = new();
             var roomsRepo = controller.GetService<IRoomsRepository>();
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
             list = room.RoomUsers.Select(u => u.ConnectionId).ToList();
             return list;
         }

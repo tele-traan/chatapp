@@ -23,7 +23,7 @@ namespace ChatApp.Hubs
 
             var roomsRepo = this.GetService<IRoomsRepository>();
             string roomName = httpContext.Session.GetString("currentlymanagedroom");
-            Room room = await roomsRepo.GetRoomAsync(roomName);
+            Room room = roomsRepo.GetRoom(roomName);
             if (room is not null)
             {
                 if (room.ContainsAdmin(httpContext.User.Identity.Name))
@@ -40,7 +40,7 @@ namespace ChatApp.Hubs
 
             var roomsRepo = this.GetService<IRoomsRepository>();
             string roomName = httpContext.Session.GetString("currentlymanagedroom");
-            Room room = await roomsRepo.GetRoomAsync(roomName);
+            Room room = roomsRepo.GetRoom(roomName);
             if (room.ContainsAdmin(httpContext.User.Identity.Name))
             {
                 if (!new Regex(@"(?!\s)(?=.*[0-9])(?=.*([a-zA-Z]|[а-яА-Я])).{6,30}")
@@ -62,7 +62,7 @@ namespace ChatApp.Hubs
 
             var roomsRepo = this.GetService<IRoomsRepository>();
             string roomName = httpContext.Session.GetString("currentlymanagedroom");
-            Room room = await roomsRepo.GetRoomAsync(roomName);
+            Room room = roomsRepo.GetRoom(roomName);
             if (room.ContainsAdmin(httpContext.User.Identity.Name))
             {
                 room.IsPrivate = false;
@@ -78,7 +78,7 @@ namespace ChatApp.Hubs
 
             var roomsRepo = this.GetService<IRoomsRepository>();
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
 
             if (room.ContainsAdmin(httpContext.User.Identity.Name))
             {
@@ -101,7 +101,7 @@ namespace ChatApp.Hubs
 
             var roomsRepo = this.GetService<IRoomsRepository>();
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
 
             if (room.ContainsAdmin(httpContext.User.Identity.Name))
             {
@@ -131,7 +131,7 @@ namespace ChatApp.Hubs
             var usersRepo = this.GetService<IUsersRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
 
             string adminName = httpContext.User.Identity.Name; 
             var user = usersRepo.GetUser(userName);
@@ -158,7 +158,7 @@ namespace ChatApp.Hubs
             var roomsRepo = this.GetService<IRoomsRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
 
             string adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
@@ -190,14 +190,14 @@ namespace ChatApp.Hubs
             var roomsRepo = this.GetService<IRoomsRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
 
             var adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);
             if (room.ContainsAdmin(adminName) && room.ContainsUser(userName))
             {
                 await roomHubContext.Clients.Client(user.RoomUser.ConnectionId)
-                    .SendAsync("SystemMessage", $"Вы были кикнуты из комнаты админом {adminName}", "red");
+                    .SendAsync("UserKicked", adminName);
                 roomUsersRepo.RemoveUser(user.RoomUser);
                 await Clients.Caller.SendAsync("KickResult", "success", userName);
             }
@@ -214,7 +214,7 @@ namespace ChatApp.Hubs
                 var bansRepo = this.GetService<IBanInfoRepository>();
 
                 var roomName = httpContext.Session.GetString("currentlymanagedroom");
-                var room = await roomsRepo.GetRoomAsync(roomName);
+                var room = roomsRepo.GetRoom(roomName);
 
                 string adminName = httpContext.User.Identity.Name;
                 var user = usersRepo.GetUser(userName);
@@ -236,10 +236,8 @@ namespace ChatApp.Hubs
                 usersRepo.UpdateUser(user);
                 roomsRepo.UpdateRoom(room);
 
-                string msg = $"Вы были забанены администратором {adminName} по причине {reason}" +
-                    $" до {until.ToShortDateString()} {until.ToShortTimeString()}";
                 await roomHubContext.Clients.Client(connectionId)
-                .SendAsync("SystemMessage", msg, "red");
+                .SendAsync("UserBanned", adminName, reason, $"{until.ToShortDateString()} {until.ToShortTimeString()}");
             }
             else await Clients.Caller.SendAsync("BanResult", "failure", "");
         }
@@ -253,7 +251,7 @@ namespace ChatApp.Hubs
             var bansRepo = this.GetService<IBanInfoRepository>();
 
             var roomName = httpContext.Session.GetString("currentlymanagedroom");
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
 
             string adminName = httpContext.User.Identity.Name;
             var user = usersRepo.GetUser(userName);

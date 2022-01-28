@@ -41,11 +41,11 @@ namespace ChatApp.Controllers
               controllerName: "Auth",
               new() { { "msg", "Ошибка. Войдите снова" } });
         }
-        public async Task<IActionResult> ManageRoom(int roomId)
+        public IActionResult ManageRoom(int roomId)
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
-            Room room = await _roomsRepo.GetRoomAsync(roomId);
+            Room room = _roomsRepo.GetRoom(roomId);
             if (room is not null)
             {
                 if (room.ContainsAdmin(User.Identity.Name))
@@ -153,16 +153,16 @@ namespace ChatApp.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteRoom(int roomId)
+        public IActionResult DeleteRoom(int roomId)
         {
             string userName = User.Identity.Name;
             User user = _usersRepo.GetUser(userName);
-            Room room = await _roomsRepo.GetRoomAsync(roomId);
+            Room room = _roomsRepo.GetRoom(roomId);
             string roomName = room.Name;
             if (room.Creator.Equals(user))
             {
-                await _roomHubContext.Clients.Clients(await this.GetIds(roomName)).SendAsync("RoomDeleted");
-                await _roomsRepo.RemoveRoomAsync(room);
+                _roomHubContext.Clients.Clients(this.GetIds(roomName)).SendAsync("RoomDeleted");
+                _roomsRepo.RemoveRoom(room);
                 return this.RedirectToPostAction(actionName: "Index",
                     controllerName: "Manage",
                     new() { { "msg", $"Комната {roomName} успешно удалена" } });

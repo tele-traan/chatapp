@@ -50,9 +50,30 @@ namespace ChatApp.Repositories
             _context.SaveChanges();
             return true;
         }
-        public User GetUser(string userName) => _context.Users.FirstOrDefault(u => u.UserName == userName);
+        public User GetUser(string userName)
+        {
+            if (!_context.Users.Any(u => u.UserName == userName)) return null;
+            return _context.Users.Where(u => u.UserName == userName)
+               .Include(u => u.GlobalChatUser)
+               .Include(u => u.RoomUser)
+               .Include(u => u.ManagedRooms)
+               .Include(u => u.RoomsCreated)
+               .Include(u => u.RoomsWhereIsBanned)
+               .Include(u => u.BanInfos)
+               .Single();
+        }
         public User GetUser(string userName, string password)
-            => _context.Users.FirstOrDefault(u => u.UserName == userName && u.PasswordHash == password);
+        {
+            if (!_context.Users.Any(u => u.UserName == userName && u.PasswordHash == password)) return null;
+             return _context.Users.Where(u => u.UserName == userName && u.PasswordHash == password)
+                .Include(u => u.GlobalChatUser)
+                .Include(u => u.RoomUser)
+                .Include(u => u.ManagedRooms)
+                .Include(u => u.RoomsCreated)
+                .Include(u => u.RoomsWhereIsBanned)
+                .Include(u => u.BanInfos)
+                .Single();
+        }
         public void UpdateUser(User user)
         {
             _context.Users.Update(user);

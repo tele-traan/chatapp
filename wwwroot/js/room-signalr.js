@@ -11,7 +11,7 @@ connection.on("NewMessage", (time, sender, msg) => {
     let firstElem = document.getElementById("messages").firstChild;
     document.getElementById("messages").insertBefore(p, firstElem);
 });
-connection.on("SystemMessage", (color, message) => {
+connection.on("SystemMessage", (message, color) => {
     let elem = document.createElement("p");
     elem.innerText = message;
     elem.style.color = color;

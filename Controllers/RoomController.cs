@@ -54,7 +54,7 @@ namespace ChatApp.Controllers
                 string userName = User.Identity.Name;
                 ViewData["Username"] = userName;
                 var user = _usersRepo.GetUser(userName);
-                var room = await _roomsRepo.GetRoomAsync(model.RoomName);
+                var room = _roomsRepo.GetRoom(model.RoomName);
                 if (room is null)
                 {
                     if (model.IsPrivate && model.RoomPassword is null)
@@ -73,10 +73,10 @@ namespace ChatApp.Controllers
                         room.IsPrivate = true;
                         room.PasswordHash = model.RoomPassword;
                     }
-                    await _roomsRepo.AddRoomAsync(room);
+                    _roomsRepo.AddRoom(room);
                     if (user.RoomUser is not null)
                     {
-                        await _roomHub.Clients.Clients(await this.GetIds(user.RoomUser.Room.Name))
+                        await _roomHub.Clients.Clients(this.GetIds(user.RoomUser.Room.Name))
                             .SendAsync("MemberLeft", userName);
                         await _roomHub.Clients.Client(user.RoomUser.ConnectionId)
                             .SendAsync("ThisAccOnNewTab");
@@ -84,7 +84,7 @@ namespace ChatApp.Controllers
                     }
                     user.RoomUser = new() { Room = room, UserName = userName, IsAdmin = true };
                     _usersRepo.UpdateUser(user);
-                    room = await _roomsRepo.GetRoomAsync(model.RoomName);
+                    room = _roomsRepo.GetRoom(model.RoomName);
                     room.Admins.Add(user);
                     _roomsRepo.UpdateRoom(room);
 
@@ -111,7 +111,7 @@ namespace ChatApp.Controllers
         {
             string userName = User.Identity.Name;
             ViewData["Username"] = userName;
-            var room = await _roomsRepo.GetRoomAsync(model.RoomName);
+            var room = _roomsRepo.GetRoom(model.RoomName);
             var user = _usersRepo.GetUser(userName);
             if (room is not null)
             {

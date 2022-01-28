@@ -16,9 +16,24 @@ namespace ChatApp.Repositories
             _context = context;
         }
 
-        public IEnumerable<RoomUser> GetAllUsers() => _context.RoomUsers.AsNoTracking();
-        public RoomUser GetUser(int id) => _context.RoomUsers.FirstOrDefault(u => u.RoomUserId == id);
-        public RoomUser GetUser(string userName) => _context.RoomUsers.FirstOrDefault(u => u.UserName == userName);
+        public RoomUser GetUser(int id)
+        {
+            if (!_context.RoomUsers.Any(u => u.RoomUserId == id) ) return null;
+            return _context.RoomUsers
+                .Where(u => u.RoomUserId == id)
+                .Include(u => u.Room)
+                .Include(u => u.User)
+                .Single();
+        }
+        public RoomUser GetUser(string userName)
+        {
+            if (!_context.RoomUsers.Any(u=>u.UserName==userName)) return null;
+            return _context.RoomUsers
+                .Where(u => u.UserName == userName)
+                .Include(u => u.Room)
+                .Include(u => u.User)
+                .Single();
+        }
         public void RemoveUser(RoomUser user)
         {
             _context.RoomUsers.Remove(user);

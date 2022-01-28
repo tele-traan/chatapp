@@ -19,34 +19,44 @@ namespace ChatApp.Repositories
 
         public IEnumerable<Room> GetAllRooms() => _context.Rooms.AsNoTracking();
 
-        public async Task<Room> GetRoomAsync(int roomId) => await _context.Rooms
-            .Include(r => r.RoomUsers)
-            .Include(r => r.Admins)
-            .Include(r => r.BannedUsers)
-            .Include(r => r.Creator)
-            .Include(r => r.BanInfos)
-            .Include(r=>r.LastMessages)
-            .FirstOrDefaultAsync(r => r.RoomId == roomId);
-        public async Task<Room> GetRoomAsync(string roomName) => await _context.Rooms
-            .Include(r => r.RoomUsers)
-            .Include(r => r.Admins)
-            .Include(r => r.BannedUsers)
-            .Include(r => r.Creator)
-            .Include(r => r.BanInfos)
-            .Include(r => r.LastMessages)
-            .FirstOrDefaultAsync(r => r.Name == roomName);
-        public async Task<bool> AddRoomAsync(Room room)
+        public Room GetRoom(int roomId)
+        {
+            if (!_context.Rooms.Any(r => r.RoomId == roomId)) return null;
+            return _context.Rooms
+                .Where(r => r.RoomId == roomId)
+                .Include(r => r.RoomUsers)
+                .Include(r => r.Admins)
+                .Include(r => r.BannedUsers)
+                .Include(r => r.Creator)
+                .Include(r => r.BanInfos)
+                .Include(r => r.LastMessages)
+                .Single();
+        }
+        public Room GetRoom(string roomName)
+        {
+            if (!_context.Rooms.Any(r => r.Name== roomName)) return null;
+            return _context.Rooms
+                .Where(r => r.Name == roomName)
+                .Include(r => r.RoomUsers)
+                .Include(r => r.Admins)
+                .Include(r => r.BannedUsers)
+                .Include(r => r.Creator)
+                .Include(r => r.BanInfos)
+                .Include(r => r.LastMessages)
+                .Single();
+        }
+        public bool AddRoom(Room room)
         {
             if (_context.Rooms.FirstOrDefault(r => r.Equals(room)) is not null) return false;
             _context.Rooms.Add(room);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return true;
         }
-        public async Task<bool> RemoveRoomAsync(Room room)
+        public bool RemoveRoom(Room room)
         {
             if (_context.Rooms.FirstOrDefault(r => r.Equals(room)) is null) return false;
             _context.Rooms.Remove(room);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return true;
         }
         public void UpdateRoom(Room room)

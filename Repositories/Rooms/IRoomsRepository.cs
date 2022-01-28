@@ -8,10 +8,10 @@ namespace ChatApp.Repositories
     public interface IRoomsRepository
     {
         IEnumerable<Room> GetAllRooms();
-        Task<Room> GetRoomAsync(int roomId);
-        Task<Room> GetRoomAsync(string roomName);
-        Task<bool> AddRoomAsync(Room room);
-        Task<bool> RemoveRoomAsync(Room room);
+        Room GetRoom(int roomId);
+        Room GetRoom(string roomName);
+        bool AddRoom(Room room);
+        bool RemoveRoom(Room room);
         void UpdateRoom(Room room);
     }
 }

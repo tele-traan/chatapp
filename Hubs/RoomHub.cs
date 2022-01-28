@@ -29,15 +29,14 @@ namespace ChatApp.Hubs
                 user.RoomUser.ConnectionId = Context.ConnectionId;
                 usersRepo.UpdateUser(user);
 
-                var room = await roomsRepo.GetRoomAsync(roomName);
+                var room = roomsRepo.GetRoom(roomName);
                 var time = DateTime.Now;
                 Message msg = new()
                 { Text = $"Пользователь {userName} подключился к комнате", DateTime = time, SenderName=null, BgColor = "lightgreen" };
                 if (user.RoomUser.IsAdmin) msg.Text = $"Админ {userName} подключился к комнате";
                 this.AddLastMessage(room, msg);
-                var connectionIds = await this.GetIds(roomName);
-                await Clients.Clients(connectionIds)
-                    .SendAsync("MemberJoined", userName, user.RoomUser.IsAdmin, time.ToShortTimeString());
+                var connectionIds = this.GetIds(roomName);
+                await Clients.Clients(connectionIds).SendAsync("MemberJoined", userName, user.RoomUser.IsAdmin, time.ToShortTimeString());
             }
             else
             {
@@ -55,7 +54,7 @@ namespace ChatApp.Hubs
             if (user is not null) 
             {
                 string roomName = user.Room.Name;
-                var room = await roomsRepo.GetRoomAsync(roomName);
+                var room = roomsRepo.GetRoom(roomName);
                 roomUsersRepo.RemoveUser(user);
 
                 Message msg = new() 
@@ -63,9 +62,8 @@ namespace ChatApp.Hubs
                 if (user.IsAdmin) msg.Text = $"Админ {userName} покинул комнату";
                 this.AddLastMessage(room, msg);
 
-                var connectionIds = await this.GetIds(roomName);
-                await Clients.Clients(connectionIds)
-                    .SendAsync("MemberLeft", userName, user.IsAdmin, DateTime.Now.ToShortTimeString());
+                var connectionIds = this.GetIds(roomName);
+                await Clients.Clients(connectionIds).SendAsync("MemberLeft", userName, user.IsAdmin, DateTime.Now.ToShortTimeString());
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -83,13 +81,12 @@ namespace ChatApp.Hubs
                 return;
             }
             string roomName = user.Room.Name;
-            var room = await roomsRepo.GetRoomAsync(roomName);
+            var room = roomsRepo.GetRoom(roomName);
             var time = DateTime.Now;
             this.AddLastMessage(room, new() { Text = message, SenderName = userName, DateTime = time, BgColor = "transparent" });
 
-            var connectionIds = await this.GetIds(roomName);
-            await Clients.Clients(connectionIds)
-                .SendAsync("NewMessage", time.ToShortTimeString(), userName, message.Trim());
+            var connectionIds = this.GetIds(roomName);
+            await Clients.Clients(connectionIds).SendAsync("NewMessage", time.ToShortTimeString(), userName, message.Trim());
         }
     }
 }
