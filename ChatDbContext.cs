@@ -71,18 +71,6 @@ namespace ChatApp.DB
             builder.Entity<BanInfo>().Navigation(b => b.User).AutoInclude();
             builder.Entity<BanInfo>().Navigation(b => b.Room).AutoInclude();
 
-            /*builder.Entity<RoomUser>().Navigation(ru => ru.User).AutoInclude();
-            builder.Entity<RoomUser>().Navigation(ru => ru.Room).AutoInclude();
-
-            builder.Entity<GlobalChatUser>().Navigation(gc => gc.User).AutoInclude();
-
-            builder.Entity<User>().Navigation(u => u.GlobalChatUser).AutoInclude();
-            builder.Entity<User>().Navigation(u => u.RoomUser).AutoInclude();
-            builder.Entity<User>().Navigation(u => u.ManagedRooms).AutoInclude();
-            builder.Entity<User>().Navigation(u => u.RoomsWhereIsBanned).AutoInclude();
-            builder.Entity<User>().Navigation(u => u.BanInfos).AutoInclude();
-
-            builder.Entity<Room>().Navigation(r => r.LastMessages).AutoInclude();*/
 
         }
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
